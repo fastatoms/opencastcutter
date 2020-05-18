@@ -6,6 +6,7 @@ __author__      = "Sebastian Loth"
 __copyright__   = "Copyright 2020, University of Stuttgart, Institute FMQ"
 
 
+import os
 from cuttools import cuttools
 
 cuts = "C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/cuts.txt";
@@ -43,18 +44,20 @@ with open(cuts,"r") as cf:
 			t1 = cl.split("\t");
 			track1 = t1[1].strip("\n");
 			print("Input track 1: %s"%(track1));
-		else:
+		elif cl.find("V\t") > -1:
+			print("Ignored experiment marker");
+		elif cl.find("C\t") > -1:
 			c = cl.split("\t");
-			cut_tstr.append(c[0]);
-			cut_titles.append(c[1].strip("\n"));
+			cut_tstr.append(c[1]);
+			cut_titles.append(c[2].strip("\n"));
+		else:
+			print("ignored unknown command");
+	cf.close();
 #Note: this import can't handle empty lines or non-matching lines at the moment.
 # this needs to be programmed still
 
 for i in range(len(cut_tstr)):
 	print("Cut position found: %s title: %s"%(cut_tstr[i], cut_titles[i]));
-
-
-
 # Convert cuts into numbers
 t0_cut=cuttools.str2Cut(cut_tstr);
 #print("Cut marks selected track0:");
@@ -62,9 +65,21 @@ t0_cut=cuttools.str2Cut(cut_tstr);
 
 #Now do the cutting
 
-cuttools.cutTrack(track0,t0_cut,cut_titles);
+t0_clips = cuttools.cutTrack(track0,t0_cut,cut_titles);
 
 t1_cut = cuttools.addCutOffset(t0_cut,t_offset);
 #print("Cut marks selected track1:");
 #cuttools.printCuts(t1_cut);
-cuttools.cutTrack(track1,t1_cut,cut_titles);
+t1_clips = cuttools.cutTrack(track1,t1_cut,cut_titles);
+
+
+#Save the list of generated files for further use
+folder, cutsfile = os.path.split(cuts);
+clips = folder+"/" +"clips.txt";
+print(clips);
+with open(clips,'w') as cliplist:
+	for i in range(len(t0_clips)):
+		line = f"{t0_clips[i]}\t{t1_clips[i]}\n";
+		cliplist.write(line);
+	cliplist.close();
+
