@@ -71,5 +71,5 @@ C	01:31:43	Ende
   ```
   E	00:38:33	00:45:22
   ```
-  The format of an experiment markers is **E** *(Tab)* **(Start hours:minutes:seconds)** *(Tab)* **(End hours:minutes:seconds)**
+  The format of an experiment markers is **E** *(Tab)* **(Start hours:minutes:seconds)** *(Tab)* **(End hours:minutes:seconds)** *(Enter)*
   This time interval lets the program know that during this time an experiment was conducted and that the whiteboard overlay should not be shown when the two tracks are joined in the reencoded video.
