@@ -64,12 +64,36 @@ C	01:31:43	Ende
   C   00:13:55	Polarisation
   C	00:20:37	weg
   ```
-  The format of a cut mark is **C** *(Tab)* **(hours:minutes:seconds)** *(Tab)* **(Title)** *(Enter)*
+  The format of a cut mark is
+  **C** *(Tab)* **(hours:minutes:seconds)** *(Tab)* **(Title)** *(Enter)*
   The cut marks **must** be in proper order. Clip 1 will be created to have the video content between cut mark 1 and cut mark 2. Clip 2 will run between cut mark 2 and cut mark 3. And so on.
+  **Note:**
+  To remove part of the video stream from the beginning, simply let the first cut mark begin at a finite time. In the 
+  above example, the first 13 seconds of the raw streams will be removed.
+  To remove part of the video stram from the end, simply let the last cut mark end before the end of the raw video streams.
+  This also means that beginning and end must always be specified.
+  To remove pieces in the middle of the video stream, define a cut mark for a video clip to be thrown away., e.g. as labeled above by "weg".
 - Specify experiment time markes.
   Lines specifying experiments **must** begin with capital `E`
   ```
   E	00:38:33	00:45:22
   ```
-  The format of an experiment markers is **E** *(Tab)* **(Start hours:minutes:seconds)** *(Tab)* **(End hours:minutes:seconds)** *(Enter)*
+  The format of an experiment markers is
+  **E** *(Tab)* **(Start hours:minutes:seconds)** *(Tab)* **(End hours:minutes:seconds)** *(Enter)*
   This time interval lets the program know that during this time an experiment was conducted and that the whiteboard overlay should not be shown when the two tracks are joined in the reencoded video.
+  **Note:**
+  It does not matter where in the cuts.txt file the experiment intervals are specified.
+  However, the experiment intervals **must not** overlap cut marks. Meaning, an experiment can begin at the exaxt time of a clip and can end at the exact end of a clip, e.g. like this
+  ```
+  C	00:00:14	Wiederholung
+  E	00:00:14	00:01:49
+  C	00:01:49	Dipolmoment
+  ```
+  but they are not allowed to go bexond. The following example would not work.
+  ```
+  C	00:00:14	Wiederholung
+  E	00:00:14	00:02:55
+  C	00:01:49	Dipolmoment
+  ```
+
+  
