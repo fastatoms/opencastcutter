@@ -44,6 +44,7 @@ C	01:31:43	Ende
 ```
 **Formatting rules:**
 - This is a Tab delimited list. The separators in each line *must* be Tab stops.
+  For example, the *offset* line is typed `offset(Tab)-3.2(Enter)`
 - Begin `cuts.txt` file by naming the two raw video streams of the lecture recording.
   ```
   track0	C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/track-0.mp4
