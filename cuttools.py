@@ -45,6 +45,10 @@ class cuttools:
 		track_name, track_ext = os.path.splitext(track0_filename);
 		clip_name = track_name + "_joined" + track_ext;
 
+		#Video appearance settings
+		vid_size = [1920, 1080]; #size of output video
+		ol_size = [1316, 740]; #Size of whiteboard overlay
+
 		#Obtain duration of the two tracks
 		fpcmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffprobe");
 		fpcmd = fpcmd + f" -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ";
@@ -57,11 +61,16 @@ class cuttools:
 		fcmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg");
 		fcmd = fcmd + f" -hide_banner -loglevel warning"
 		fcmd = fcmd + f" -i {track1_filename} -i {track0_filename}";
-			
+		fcmd = fcmd + f" -filter_complex \"";
+		
+		fi ="";
+
 		if nooverlay_intervals == []:
 			print("Joining clips with continuous overlay. No interruption of overlay selected.")
 			# Assemble command with overlay all the time
-			fcmd = fcmd + f" -filter_complex \"[0:v]scale=iw*0.7:ih*0.7 [pip0]; [1:v][pip0] overlay=main_w-overlay_w-3:3:enable=\'between(t,0,{tend})\'";
+			fi = fi + f"[0:v]scale={ol_size[0]}:{ol_size[1]} [pip0];";
+			fi = fi +f"[pip0]pad=width={vid_size[0]}:height={ol_size[1]}:x={round((vid_size[0]-ol_size[0])/2)}:y=0:color=black [pb0];";
+			fi = fi +f"[1:v][pb0] overlay=0:0:enable=\'between(t,0,{tend})\'";
 		else:
 			#Generate overlay intervals
 			overlay_interval = [[0, nooverlay_intervals[0][0]]];
@@ -73,15 +82,21 @@ class cuttools:
 			print(repr(overlay_interval));
 
 			#Assemble command with interrupted overlay
-			fcmd = fcmd + f" -filter_complex \"[0:v]scale=iw*0.7:ih*0.7 [pip0]; [1:v][pip0] overlay=main_w-overlay_w-3:3:enable=\'between(t,{overlay_interval[0][0]},{overlay_interval[0][1]})\'"
+			fi = fi + f"[0:v]scale={ol_size[0]}:{ol_size[1]} [pip0];";
+			fi = fi + f"[pip0]pad=width={vid_size[0]}:height={ol_size[1]}:x={round((vid_size[0]-ol_size[0])/2)}:y=0:color=black [pb0];";
+			fi = fi + f"[1:v][pb0] overlay=0:0:enable=\'between(t,{overlay_interval[0][0]},{overlay_interval[0][1]})\'";
+
 			No = len(overlay_interval);
 			print(f"Number of overlay intervals: {No}");
 			for i in range(1,No):
-				fcmd = fcmd +f" [out{i}]; [0:v]scale=iw*0.7:ih*0.7 [pip{i+1}]; [out{i}][pip{i+1}] overlay=main_w-overlay_w-3:3:enable=\'between(t,{overlay_interval[i][0]},{overlay_interval[i][1]})\'";
+				fi = fi +f"[out{i}]; [0:v]scale={ol_size[0]}:{ol_size[1]} [pip{i+1}];";
+				fi = fi +f"[pip{i+1}]pad=width={vid_size[0]}:height={ol_size[1]}:x={round((vid_size[0]-ol_size[0])/2)}:y=0:color=black [pb{i+1}];";
+				fi = fi +f"[out{i}][pb{i+1}] overlay=0:0:enable=\'between(t,{overlay_interval[i][0]},{overlay_interval[i][1]})\'";
 		
 		#Quality settings
 		#fcmd = fcmd + f"\" -map 0:a -profile:v main -level 3.1 -b:v 440k -ar 44100 -ab 128k -s 1920x1080 -vcodec h264 -acodec aac -y {clip_name}";
-		fcmd = fcmd + f"\" -map 0:a -profile:v main -c:v libx264 -preset slow -crf 22 -c:a copy -y {clip_name}";
+		fcmd = fcmd + fi +"\"";
+		fcmd = fcmd + f" -map 0:a -profile:v main -c:v libx264 -preset slow -crf 22 -c:a copy -y {clip_name}";
 
 		print("This is the FFMPEG command to be executed:");
 		print(fcmd);
