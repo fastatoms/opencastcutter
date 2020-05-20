@@ -42,9 +42,10 @@ C	01:25:11	Ohmsches Gesetz
 E	01:28:04	1:31:43
 C	01:31:43	Ende
 ```
-**Formatting rules:**
+### General rules ###
 - This is a Tab delimited list. The separators in each line *must* be Tab stops.
   For example, the *offset* line is typed `offset(Tab)-3.2(Enter)`
+### Input track specification ###
 - Begin `cuts.txt` file by naming the two raw video streams of the lecture recording.
   ```
   track0	C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/track-0.mp4
@@ -52,10 +53,12 @@ C	01:31:43	Ende
   ```
   `track0` will be used as the stage view showing the lecture hall stage.
   `track1` will be used as the whiteboard view showing what the presenter is writing on the screen.
+### Offset between input tracks ###
 - Specify offset between track0 and track
   ```
   offset	-3.2
   ```
+### Specify cut marks ###
 - Specify cut marks.
   Lines indicating cut marks **must** begin with capital `C`.
   ```
@@ -73,6 +76,7 @@ C	01:31:43	Ende
   To remove part of the video stram from the end, simply let the last cut mark end before the end of the raw video streams.
   This also means that beginning and end must always be specified.
   To remove pieces in the middle of the video stream, define a cut mark for a video clip to be thrown away., e.g. as labeled above by "weg".
+### Specify experiment markers ###
 - Specify experiment time markes.
   Lines specifying experiments **must** begin with capital `E`
   ```
