@@ -50,3 +50,26 @@ C	01:31:43	Ende
   track0	C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/track-0.mp4
   track1	C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/track-1.mp4
   ```
+  `track0` will be used as the stage view showing the lecture hall stage.
+  `track1` will be used as the whiteboard view showing what the presenter is writing on the screen.
+- Specify offset between track0 and track
+  ```
+  offset	-3.2
+  ```
+- Specify cut marks.
+  Lines indicating cut marks **must** begin with capital `C`.
+  ```
+  C	00:00:14	Wiederholung
+  C	00:01:49	Dipolmoment
+  C   00:13:55	Polarisation
+  C	00:20:37	weg
+  ```
+  The format of a cut mark is **C** *(Tab)* **(hours:minutes:seconds)** *(Tab)* **(Title)** *(Enter)*
+  The cut marks **must** be in proper order. Clip 1 will be created to have the video content between cut mark 1 and cut mark 2. Clip 2 will run between cut mark 2 and cut mark 3. And so on.
+- Specify experiment time markes.
+  Lines specifying experiments **must** begin with capital `E`
+  ```
+  E	00:38:33	00:45:22
+  ```
+  The format of an experiment markers is **E** *(Tab)* **(Start hours:minutes:seconds)** *(Tab)* **(End hours:minutes:seconds)**
+  This time interval lets the program know that during this time an experiment was conducted and that the whiteboard overlay should not be shown when the two tracks are joined in the reencoded video.
