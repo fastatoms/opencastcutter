@@ -89,14 +89,12 @@ for i in range(Nclips):
 print("Done selecting clips and experiments. My conclusion is");
 print(repr(clip_exp_t));
 
-for i in range(Nclips):
+for i in range(1,Nclips):
 	print(f"----------- Begin joining clip No.: {i} of {Nclips}");
 	print(f"            Clip contains these experiments");
 	
 	print(clips[i][0]);
 	print(clips[i][1]);
-	print(repr(clip_exp_t[i]));
-
 	cuttools.joinTracks(clips[i][0], clips[i][1],clip_exp_t[i]);
 
 	print(f"----------- DONE  joining clip No.: {i} of {Nclips}");

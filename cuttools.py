@@ -65,12 +65,18 @@ class cuttools:
 		
 		fi ="";
 
+		#Assemble command for color correction of the stage view
+		fi = fi + f"[1:v]curves=psfile=stagecorr.acv[in1_stage];";
+			
 		if nooverlay_intervals == []:
 			print("Joining clips with continuous overlay. No interruption of overlay selected.")
 			# Assemble command with overlay all the time
 			fi = fi + f"[0:v]scale={ol_size[0]}:{ol_size[1]} [pip0];";
 			fi = fi +f"[pip0]pad=width={vid_size[0]}:height={ol_size[1]}:x={round((vid_size[0]-ol_size[0])/2)}:y=0:color=black [pb0];";
-			fi = fi +f"[1:v][pb0] overlay=0:0:enable=\'between(t,0,{tend})\'";
+			fi = fi +f"[in1_stage][pb0] overlay=0:0:enable=\'between(t,0,{tend})\'";
+			No = 0;
+			Nnoo = 1;
+			overlay_interval=[];
 		else:
 			#Generate overlay intervals
 			overlay_interval = [[0, nooverlay_intervals[0][0]]];
@@ -79,14 +85,16 @@ class cuttools:
 				overlay_interval.append([nooverlay_intervals[i-1][1], nooverlay_intervals[i][0]]);
 			overlay_interval.append([ nooverlay_intervals[Nnoo-1][1], tend]);
 			
+			#Assemble command to perform color correction on the input streams
+			fi = fi + f"[1:v]colorlevels=rimax=0.80:gimax=0.80:bimax=0.80[in1_screen];";
+
 			#Assemble command to do perspective correction in the intervals without overlay
-			fi = fi + f"[1:v]colorlevels=rimax=0.752:gimax=0.752:bimax=0.752[in1];[in1]scale=w=5760:h=3240[sc];[sc]split=2[sca][scb];";
+			fi = fi + f"[in1_screen]scale=w=5760:h=3240[sc];[sc]split=2[sca][scb];";
 			fi = fi + f"[sca]perspective=x0=510:y0=285:x1=2805:y1=330:x2=600:y2=1572:x3=2790:y3=1536[pea];";
 			fi = fi + f"[pea]scale=w=960:h=540[psa];[psa]split={Nnoo}";
 			for k in range(0,Nnoo):
 				fi = fi + f"[psa{k}]";
 			fi = fi + f";";
-
 			fi = fi + f"[scb]perspective=x0=2832:y0=336:x1=5064:y1=366:x2=2811:y2=1539:x3=4956:y3=1620[peb];";
 			fi = fi + f"[peb]scale=w=960:h=540[psb];[psb]split={Nnoo}";
 			for l in range(0,Nnoo):
@@ -95,17 +103,14 @@ class cuttools:
 
 			for j in range(0,Nnoo):
 				if j==0:
-					startstream=f"[1:v]";
+					fi = fi + f"[in1_stage]";
 				else:
-					startstream=f"[nov{j-1}]";
-				fi = fi + startstream + f"[psa{j}]overlay=0:0:enable=\'between(t,{nooverlay_intervals[j][0]},{nooverlay_intervals[j][1]})\'[nout{j}];";
+					fi = fi + f"[nov{j-1}]";
+				fi = fi + f"[psa{j}]overlay=0:0:enable=\'between(t,{nooverlay_intervals[j][0]},{nooverlay_intervals[j][1]})\'[nout{j}];";
 				fi = fi + f"[nout{j}][psb{j}]overlay=960:1:enable=\'between(t,{nooverlay_intervals[j][0]},{nooverlay_intervals[j][1]})\'[nov{j}];";
 
-				#FFMPEG cannot reuse a stream. Must be split into multiple outputs. Like: split=3[out1][out2][out3]
 
-
-
-			#Assemble command with interrupted overlay
+			#Assemble command to add interrupted overlay
 			No = len(overlay_interval);
 			
 			fi = fi + f"[0:v]scale={ol_size[0]}:{ol_size[1]} [ovr];";
@@ -114,7 +119,6 @@ class cuttools:
 			for m in range(0,No):
 				fi = fi + f"[pip{m}]";
 			fi = fi + f";";
-
 			for i in range(0,No):
 				if i==0:
 					fi = fi +f"[nov{Nnoo-1}]";

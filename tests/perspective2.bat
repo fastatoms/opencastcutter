@@ -1,0 +1,1 @@
+D:\OneDrive\Documents\GIT\opencastcutter\libs/ffmpeg/bin/ffmpeg -re -f lavfi -i "testsrc,drawbox=x=1:y=1:w=iw-2:h=ih-2:t=1:c=white,drawgrid=w=iw/10:h=ih/10:t=1:c=white@0.5" -filter_complex "[0:v]perspective=x0=-100:y0=-100:x2=-100:y2=H+100[ovl1]; [0:v]pad=w=iw*2[ovl0]; [ovl0][ovl1]overlay=x=W/2[vidout]" -map "[vidout]" -pix_fmt yuv420p -f sdl -
