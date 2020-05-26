@@ -19,7 +19,7 @@ cuts = "C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/cuts.txt";
 # If a clip contains one experiment, the entry is [[exp_start(sec), seconds_end(seconds)]]
 # If a clip contains two or more experiments, the entry is [[exp1_start(seconds), exp1_end(seconds)], [exp2_start(seconds)...
 
-exp_overlay=[[10, 20],[40, 60]];
+exp_overlay=[[10, 20],[40,80]];
 clip0 = "C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/track-0-00_Wiederholung.mp4";
 clip1 = "C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/track-1-00_Wiederholung.mp4";
 

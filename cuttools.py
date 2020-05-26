@@ -81,10 +81,37 @@ class cuttools:
 			overlay_interval.append([ nooverlay_intervals[Nnoo-1][1], tend]);
 			print(repr(overlay_interval));
 
+			#Assemble command to do perspective correction in the intervals without overlay
+			fi = fi + f"[1:v]scale=w=5760:h=3240[sc];[sc]split=2[sca][scb];";
+			fi = fi + f"[sca]perspective=x0=510:y0=285:x1=2805:y1=330:x2=600:y2=1572:x3=2790:y3=1536[pea];";
+			fi = fi + f"[pea]scale=w=960:h=540[psa];[psa]split={Nnoo}";
+			for k in range(0,Nnoo):
+				fi = fi + f"[psa{k}]";
+			fi = fi + f";";
+
+			fi = fi + f"[scb]perspective=x0=2832:y0=336:x1=5064:y1=366:x2=2811:y2=1539:x3=4956:y3=1620[peb];";
+			fi = fi + f"[peb]scale=w=960:h=540[psb];[psb]split={Nnoo}";
+			for l in range(0,Nnoo):
+				fi = fi + f"[psb{l}]";
+			fi = fi + f";";
+
+			for j in range(0,Nnoo):
+				if j==0:
+					startstream=f"[1:v]";
+				else:
+					startstream=f"[nov{j-1}]";
+				fi = fi + startstream + f"[psa{j}]overlay=0:0:enable=\'between(t,{nooverlay_intervals[j][0]},{nooverlay_intervals[j][1]})\'[nout{j}];";
+				fi = fi + f"[nout{j}][psb{j}]overlay=960:1:enable=\'between(t,{nooverlay_intervals[j][0]},{nooverlay_intervals[j][1]})\'[nov{j}];";
+
+				#FFMPEG cannot reuse a stream. Must be split into multiple outputs. Like: split=3[out1][out2][out3]
+
+
+
 			#Assemble command with interrupted overlay
+
 			fi = fi + f"[0:v]scale={ol_size[0]}:{ol_size[1]} [pip0];";
 			fi = fi + f"[pip0]pad=width={vid_size[0]}:height={ol_size[1]}:x={round((vid_size[0]-ol_size[0])/2)}:y=0:color=black [pb0];";
-			fi = fi + f"[1:v][pb0] overlay=0:0:enable=\'between(t,{overlay_interval[0][0]},{overlay_interval[0][1]})\'";
+			fi = fi + f"[nov{Nnoo-1}][pb0] overlay=0:0:enable=\'between(t,{overlay_interval[0][0]},{overlay_interval[0][1]})\'";
 
 			No = len(overlay_interval);
 			print(f"Number of overlay intervals: {No}");
