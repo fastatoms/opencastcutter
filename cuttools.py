@@ -59,7 +59,7 @@ class cuttools:
 
 		
 		fcmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg");
-		fcmd = fcmd + f" -hide_banner -loglevel warning"
+		fcmd = fcmd + f" -hide_banner -loglevel warning";
 		fcmd = fcmd + f" -i {track1_filename} -i {track0_filename}";
 		fcmd = fcmd + f" -filter_complex \"";
 		
@@ -76,13 +76,11 @@ class cuttools:
 			overlay_interval = [[0, nooverlay_intervals[0][0]]];
 			Nnoo = len(nooverlay_intervals);
 			for i in range(1,Nnoo):
-				print(i);
 				overlay_interval.append([nooverlay_intervals[i-1][1], nooverlay_intervals[i][0]]);
 			overlay_interval.append([ nooverlay_intervals[Nnoo-1][1], tend]);
-			print(repr(overlay_interval));
-
+			
 			#Assemble command to do perspective correction in the intervals without overlay
-			fi = fi + f"[1:v]scale=w=5760:h=3240[sc];[sc]split=2[sca][scb];";
+			fi = fi + f"[1:v]colorlevels=rimax=0.752:gimax=0.752:bimax=0.752[in1];[in1]scale=w=5760:h=3240[sc];[sc]split=2[sca][scb];";
 			fi = fi + f"[sca]perspective=x0=510:y0=285:x1=2805:y1=330:x2=600:y2=1572:x3=2790:y3=1536[pea];";
 			fi = fi + f"[pea]scale=w=960:h=540[psa];[psa]split={Nnoo}";
 			for k in range(0,Nnoo):
@@ -108,35 +106,48 @@ class cuttools:
 
 
 			#Assemble command with interrupted overlay
-
-			fi = fi + f"[0:v]scale={ol_size[0]}:{ol_size[1]} [pip0];";
-			fi = fi + f"[pip0]pad=width={vid_size[0]}:height={ol_size[1]}:x={round((vid_size[0]-ol_size[0])/2)}:y=0:color=black [pb0];";
-			fi = fi + f"[nov{Nnoo-1}][pb0] overlay=0:0:enable=\'between(t,{overlay_interval[0][0]},{overlay_interval[0][1]})\'";
-
 			No = len(overlay_interval);
-			print(f"Number of overlay intervals: {No}");
-			for i in range(1,No):
-				fi = fi +f"[out{i}]; [0:v]scale={ol_size[0]}:{ol_size[1]} [pip{i+1}];";
-				fi = fi +f"[pip{i+1}]pad=width={vid_size[0]}:height={ol_size[1]}:x={round((vid_size[0]-ol_size[0])/2)}:y=0:color=black [pb{i+1}];";
-				fi = fi +f"[out{i}][pb{i+1}] overlay=0:0:enable=\'between(t,{overlay_interval[i][0]},{overlay_interval[i][1]})\'";
+			
+			fi = fi + f"[0:v]scale={ol_size[0]}:{ol_size[1]} [ovr];";
+			fi = fi + f"[ovr]pad=width={vid_size[0]}:height={ol_size[1]}:x={round((vid_size[0]-ol_size[0])/2)}:y=0:color=black [ovb];";
+			fi = fi + f"[ovb]split={No}";
+			for m in range(0,No):
+				fi = fi + f"[pip{m}]";
+			fi = fi + f";";
+
+			for i in range(0,No):
+				if i==0:
+					fi = fi +f"[nov{Nnoo-1}]";
+				else:
+					fi = fi +f"[out{i-1}]";
+				fi = fi +f"[pip{i}] overlay=0:0:enable=\'between(t,{overlay_interval[i][0]},{overlay_interval[i][1]})\'";
+				if i<(No-1):
+					fi = fi +f"[out{i}];"
+				
 		
 		#Quality settings
 		#fcmd = fcmd + f"\" -map 0:a -profile:v main -level 3.1 -b:v 440k -ar 44100 -ab 128k -s 1920x1080 -vcodec h264 -acodec aac -y {clip_name}";
 		fcmd = fcmd + fi +"\"";
 		fcmd = fcmd + f" -map 0:a -profile:v main -c:v libx264 -preset slow -crf 22 -c:a copy -y {clip_name}";
 
+		print("========== Join tracks function called ==========");
+		print(f"Overlay intervals: {No}");
+		print(repr(overlay_interval));
+		print(f"No overlay intervals: {Nnoo}");
+		print(repr(nooverlay_intervals));
+		print("");
 		print("This is the FFMPEG command to be executed:");
 		print(fcmd);
+		print("===== Starting encoding now. =====");
 
 		#Execute FFMPEG command
 		try:
 			rtn = subprocess.check_call(fcmd);
-			print(f"Successfully saved clip {clip_name}");
+			print(f"===== Done. Successfully saved clip {clip_name} =====");
 		except subprocess.CalledProcessError as grepexc:
-			print(f"ERROR writing clip {clip_name}");
+			print(f"***** ERROR writing clip {clip_name} *****");
 			print(grepexc.returncode);
 
-		print("I am done.");
 
 	def addCutOffset(track_cuts,cut_offset):
 		# This function adjusts the cut marks for stream 2 by adding the timing offset 
