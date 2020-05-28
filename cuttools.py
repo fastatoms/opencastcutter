@@ -66,7 +66,7 @@ class cuttools:
 		fi ="";
 
 		#Assemble command for color correction of the stage view
-		fi = fi + f"[1:v]curves=psfile=stagecorr.acv[in1_stage];";
+		fi = fi + f"[1:v]curves=psfile=stagecorr4.acv[in1_stage];";
 			
 		if nooverlay_intervals == []:
 			print("Joining clips with continuous overlay. No interruption of overlay selected.")
@@ -85,8 +85,8 @@ class cuttools:
 				overlay_interval.append([nooverlay_intervals[i-1][1], nooverlay_intervals[i][0]]);
 			overlay_interval.append([ nooverlay_intervals[Nnoo-1][1], tend]);
 			
-			#Assemble command to perform color correction on the input streams
-			fi = fi + f"[1:v]colorlevels=rimax=0.80:gimax=0.80:bimax=0.80[in1_screen];";
+			#Assemble command to perform color correction on the screen display
+			fi = fi + f"[1:v]colorlevels=rimax=0.90:gimax=0.90:bimax=0.90[in1_screen];";
 
 			#Assemble command to do perspective correction in the intervals without overlay
 			fi = fi + f"[in1_screen]scale=w=5760:h=3240[sc];[sc]split=2[sca][scb];";
@@ -139,15 +139,14 @@ class cuttools:
 		print(repr(overlay_interval));
 		print(f"No overlay intervals: {Nnoo}");
 		print(repr(nooverlay_intervals));
-		print("");
 		print("This is the FFMPEG command to be executed:");
 		print(fcmd);
-		print("===== Starting encoding now. =====");
+		print(f"===== Starting encoding now. {datetime.now()}=====");
 
 		#Execute FFMPEG command
 		try:
 			rtn = subprocess.check_call(fcmd);
-			print(f"===== Done. Successfully saved clip {clip_name} =====");
+			print(f"===== Done. Successfully saved clip {clip_name} time: {datetime.now()}=====");
 		except subprocess.CalledProcessError as grepexc:
 			print(f"***** ERROR writing clip {clip_name} *****");
 			print(grepexc.returncode);
