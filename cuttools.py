@@ -12,6 +12,12 @@ from datetime import timedelta
 
 
 class cuttools:
+	def loadCuts(cuts_file):
+		#This function loads the cut marks
+		pass;
+
+
+
 	def cutTrack(track_filename, track_cuts, clip_titles):
 		#This function cuts two tracks into synchronized clips
 		track_name, track_ext = os.path.splitext(track_filename);
@@ -25,8 +31,8 @@ class cuttools:
 			clip_title = "_" + clip_titles[i].replace(" ","_");
 			clip_name = track_name + "-%02d"%(i) + clip_title + track_ext;
 			ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg");
-			ffmpeg_cmd = ffmpeg_cmd + f" -hide_banner -loglevel warning -i {track_filename}";
-			ffmpeg_cmd = ffmpeg_cmd +f" -c copy -ss {cut_start} -to {cut_end} -y {clip_name}";
+			ffmpeg_cmd = ffmpeg_cmd + f" -hide_banner -loglevel warning -i \"{track_filename}\"";
+			ffmpeg_cmd = ffmpeg_cmd +f" -c copy -ss {cut_start} -to {cut_end} -y \"{clip_name}\"";
 			#print(ffmpeg_cmd); #This is the command that will be executed in the shell
 			try:
 				rtn = subprocess.check_call(ffmpeg_cmd);
@@ -53,20 +59,20 @@ class cuttools:
 		fpcmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffprobe");
 		fpcmd = fpcmd + f" -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ";
 
-		t0 = round(float(subprocess.check_output(fpcmd + track0_filename)));
-		t1 = round(float(subprocess.check_output(fpcmd + track1_filename)));
+		t0 = round(float(subprocess.check_output(fpcmd + f"\"{track0_filename}\"")));
+		t1 = round(float(subprocess.check_output(fpcmd + f"\"{track1_filename}\"")));
 		tend = min(t0,t1);
 
 		
 		fcmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg");
 		fcmd = fcmd + f" -hide_banner -loglevel warning";
-		fcmd = fcmd + f" -i {track1_filename} -i {track0_filename}";
+		fcmd = fcmd + f" -i \"{track1_filename}\" -i \"{track0_filename}\"";
 		fcmd = fcmd + f" -filter_complex \"";
 		
 		fi ="";
 
 		#Assemble command for color correction of the stage view
-		fi = fi + f"[1:v]curves=psfile=stagecorr4.acv[in1_stage];";
+		fi = fi + f"[1:v]curves=psfile=stagecorr5.acv[in1_stage];";
 			
 		if nooverlay_intervals == []:
 			print("Joining clips with continuous overlay. No interruption of overlay selected.")
@@ -86,7 +92,7 @@ class cuttools:
 			overlay_interval.append([ nooverlay_intervals[Nnoo-1][1], tend]);
 			
 			#Assemble command to perform color correction on the screen display
-			fi = fi + f"[1:v]colorlevels=rimax=0.90:gimax=0.90:bimax=0.90[in1_screen];";
+			fi = fi + f"[1:v]colorlevels=rimax=0.95:gimax=0.95:bimax=0.95[in1_screen];";
 
 			#Assemble command to do perspective correction in the intervals without overlay
 			fi = fi + f"[in1_screen]scale=w=5760:h=3240[sc];[sc]split=2[sca][scb];";
@@ -132,7 +138,7 @@ class cuttools:
 		#Quality settings
 		#fcmd = fcmd + f"\" -map 0:a -profile:v main -level 3.1 -b:v 440k -ar 44100 -ab 128k -s 1920x1080 -vcodec h264 -acodec aac -y {clip_name}";
 		fcmd = fcmd + fi +"\"";
-		fcmd = fcmd + f" -map 0:a -profile:v main -c:v libx264 -preset slow -crf 22 -c:a copy -y {clip_name}";
+		fcmd = fcmd + f" -map 0:a -profile:v main -c:v libx264 -preset slow -crf 22 -c:a copy -y \"{clip_name}\"";
 
 		print("========== Join tracks function called ==========");
 		print(f"Overlay intervals: {No}");

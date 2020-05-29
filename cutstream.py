@@ -9,7 +9,11 @@ __copyright__   = "Copyright 2020, University of Stuttgart, Institute FMQ"
 import os
 from cuttools import cuttools
 
+#Lecture 05-29
 cuts = "C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/cuts.txt";
+
+#Lecture 05-31
+cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-5-31-5-54/2019-5-31-5-54/cuts.txt";
 
 
 #Import cut marks

@@ -10,8 +10,14 @@ from cuttools import cuttools
 from datetime import datetime
 
 #load a list of clips to join
+
+#Lecture 05-29
 clips_file = "C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/clips.txt";
 cuts = "C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/cuts.txt";
+
+#Lecture 05-31
+clips_file = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-5-31-5-54/2019-5-31-5-54/clips.txt";
+cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-5-31-5-54/2019-5-31-5-54/cuts.txt";
 
 clips=[];
 with open(clips_file,"r") as cf:
@@ -89,7 +95,7 @@ for i in range(Nclips):
 print("Done selecting clips and experiments. My conclusion is");
 print(repr(clip_exp_t));
 
-for i in range(1,Nclips):
+for i in range(0,Nclips):
 	print(f"----------- Begin joining clip No.: {i} of {Nclips}");
 	print(f"            Clip contains these experiments");
 	
