@@ -6,7 +6,7 @@ The goal is to provide an easy method to cut and re-encode lecture recordings in
 
 
 # Procedures
-## Cutting of stream into clips
+## Cutting of stream into clips (cutstream-py)
 As the lecture recordings feature two parallel video streams (typically named track-0.mp4 and trach-1.mp4), the procedure to cut the entire lecture into smaller streams is done as follows:
 1. Select which track contains the stage view (labeled track0 throughout program) and which track contains the whiteboard view (labeled track1 throughout program).
 2. Determine time offset between track0 and track1. Positive time offset means that things happen later in track1 compared to track0.
@@ -99,5 +99,15 @@ C	01:31:43	Ende
   E	00:00:14	00:02:55
   C	00:01:49	Dipolmoment
   ```
+## Join two streams and render mp4 (jointracks.py)
+This script joins two lecture streams (track-0 and track-1) into one .mp4 video. The script assumes that:
+- one stream is the stage view that shows the lectuerer and the experiment and in the upper part the two screens on which close-ups of the experiment are shown.
+- The other stream shows only the recording of the notebook screen (whiteboard) on which the lecturer writes the lecture notes.
 
+The script provides two views:
+- Whiteboard view
+  The whiteboard screen is overlayed on the stage and blocks the upper half of the video image.
+  The lectuerer is visible in the lower part but the screens in the lecture hall are not visible.
+- Experiment view
+  The stage view is shown, but the screens are replaced with perspective corrected overlays of these screens.
   
