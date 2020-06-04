@@ -9,11 +9,14 @@ __copyright__   = "Copyright 2020, University of Stuttgart, Institute FMQ"
 import os
 from cuttools import cuttools
 
-#Lecture 05-29
-cuts = "C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/cuts.txt";
+#Lecture 05-29 (from local PC Sebastian)
+# cuts = "C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/cuts.txt";
 
-#Lecture 05-31
-cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-5-31-5-54/2019-5-31-5-54/cuts.txt";
+#Lecture 05-31 (from Google Drive connected PC)
+# cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-5-31-5-54/2019-5-31-5-54/cuts.txt";
+
+#Lectures 06-19 (from FMQ PC)
+cuts = "\\fmq-cifs.tik.uni-stuttgart.de/Loth_group/Teaching/2020 SS ExpPhys 2/SS2019 Aufzeichnung/vl041500000-2019-6-19-5-54/2019-6-19-5-54/cuts.txt";
 
 
 #Import cut marks
