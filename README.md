@@ -3,6 +3,12 @@ Python class and scripts to cut the dual stream videos of open cast lecture reco
 
 # Basic working principle
 The goal is to provide an easy method to cut and re-encode lecture recordings into smaller video clips.
+As such, the program will work from a short text file that contains the cutting instructions.
+It creates several small clips from of one big video, so its working principle is oposite to normal video editing software.
+The artistic choices are kept minimal to keep the cutting instructions needed minimal as well.
+
+All of the cutting and rendering is performed by **ffmpeg**, which is a command line based video rendering program that is very fast.
+The python script creates the ffmpeg command for each clip and executes it.
 
 
 # Procedures
