@@ -6,6 +6,11 @@ The goal is to provide an easy method to cut and re-encode lecture recordings in
 As such, the program will work from a short text file that contains the cutting instructions.
 It creates several small clips from of one big video, so its working principle is oposite to normal video editing software.
 The artistic choices are kept minimal to keep the cutting instructions needed minimal as well.
+At present, the program works in two steps:
+1. division of input videos (track0 and track1) into smaller clips.
+   This process is very fast and retains the original video quality as it does not require rendering.
+2. joining of both tracks for each small clip into single videos using overlays.
+   This process is time-consuming because the video is rendered again.
 
 All of the cutting and rendering is performed by **ffmpeg**, which is a command line based video rendering program that is very fast.
 The python script creates the ffmpeg command for each clip and executes it.
@@ -13,7 +18,7 @@ The python script creates the ffmpeg command for each clip and executes it.
 
 # Procedures
 ## Cutting of stream into clips (cutstream-py)
-As the lecture recordings feature two parallel video streams (typically named track-0.mp4 and trach-1.mp4), the procedure to cut the entire lecture into smaller streams is done as follows:
+As the lecture recordings feature two parallel video streams (typically named track-0.mp4 and track-1.mp4), the procedure to cut the entire lecture into smaller streams is done as follows:
 1. Select which track contains the stage view (labeled track0 throughout program) and which track contains the whiteboard view (labeled track1 throughout program).
 2. Determine time offset between track0 and track1. Positive time offset means that things happen later in track1 compared to track0.
 3. Make a list of cut marks and save them together with some additional information in a text file cuts.txt
