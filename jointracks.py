@@ -9,28 +9,44 @@ __copyright__   = "Copyright 2020, University of Stuttgart, Institute FMQ"
 from cuttools import cuttools
 from datetime import datetime
 
+#Create cuttools object
+ct = cuttools()
+
 #load a list of clips to join
 
-#Lecture 05-29
-# clips_file = "C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/clips.txt"
-# cuts = "C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/cuts.txt"
 
-#Lecture 05-31
-# clips_file = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-5-31-5-54/2019-5-31-5-54/clips.txt"
-# cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-5-31-5-54/2019-5-31-5-54/cuts.txt"
+#Lectures 06-28
+# cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-6-28-5-54/2019-6-28-5-54/cuts.txt"
+# clips_file ="G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-6-28-5-54/2019-6-28-5-54/clips.txt"
 
-#Lectures 06-26
-clips_file = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-6-26-5-54/2019-6-26-5-54/clips.txt"
-cuts =       "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-6-26-5-54/2019-6-26-5-54/cuts.txt"
+#Test cut of additional lecture
+# cuts = "C:/temp/vl041500000-2020-7-3-8-42/2020-7-3-8-42/cuts_test.txt"
+# clips_file = "C:/temp/vl041500000-2020-7-3-8-42/2020-7-3-8-42/clips.txt"
+# ct.setScreenLeft([58, 14], [925, 39], [100, 500], [921, 485])
+# ct.setScreenRight([940, 38],[1776, 47], [931, 485], [1731, 517])
 
-clips=[]
-with open(clips_file,"r") as cf:
-	for cl in cf:
-		clips.append(cl.strip("\n").split("\t"))
-	cf.close()
+
+#2020 Additional lecture part 1
+cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/joined/Zusatzaufzeichnung (fehlerhaft)/2020-07-03-8/cuts_drive.txt"
+clips_file = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/joined/Zusatzaufzeichnung (fehlerhaft)/2020-07-03-8/clips_drive.txt"
+ct.setScreenLeft([58, 14], [925, 39], [100, 500], [921, 485])
+ct.setScreenRight([940, 38],[1776, 47], [931, 485], [1731, 517])
+# Note:
+# The above functions define the postion of the two projector screens in the video image.
+# Numbers are given in pixels counting from the top left corner of the video image. 
+# Thefirst pixel i[0, 0]
+# The expected input looks like this:
+# ([x0, y0], [x1, y1], [x2, y2], [x3, y3])
+# Corner 0 [x0,y0]: top left of projector screen
+# Corner 1 [x1, y1]: top right
+# Corner 2 [x2, y2]: bottom left
+# Corner 3 [x3, y3]: bottom right
+
+
+# ========================= Not user input required from this point on
+clips = ct.loadClips(clips_file)
 #clips is now an array of arrays in the form of
 #[ [clip0_track0, clip0_track1], [clip1_track0, clip1_track1],...]
-#print(repr(clips))
 
 #load experiment markers and cut markers from cuts file
 exp_tstr = []
@@ -51,34 +67,23 @@ with open(cuts,"r") as cf:
 			print("ignored unknown command")
 	cf.close()
 #convert cut time strings into timestamps
-cut_t=cuttools.str2Cut(cut_tstr)
+cut_t=ct.str2Cut(cut_tstr)
 #print("Cut time markers:")
 #print(repr(cut_t))
 #now cut_t is a list of cut marks
 
 #convert experiment time string into timestamp
-Nexp = len(exp_tstr)
-exp_t = []
-for i in range(Nexp):
-	cm = exp_tstr[i]
-	ct = [datetime.strptime(cm[0],"%H:%M:%S"), datetime.strptime(cm[1],"%H:%M:%S")]
-	exp_t.append(ct)
+exp_t = ct.str2Exp(exp_tstr)
 #now exp_t is a list of [experiment start, experiment end] in the time format of absolute time in full track
-#print("Experiment time markers")
-#print(repr(exp_t))
-
 
 #convert cut times into clip intervals
-Nclips = len(cut_t)-1
-clip_t = []
-for i in range(Nclips):
-	clip_t.append([cut_t[i],cut_t[i+1]])
+clip_t=ct.cut2clip(cut_t)
 #now clip_t is a list of [clip_start, clip_end] in the time format of absolute time in full track
-#print("Clip time marker:")
-#print(clip_t)
 
 #Now identify experiments for each clip and convert their timestamps to seconds
 clip_exp_t = []
+Nexp = len(exp_tstr)
+Nclips = len(cut_t)-1
 for i in range(Nclips):
 	cclip = clip_t[i]
 	print(f"Checking clip {i}")
@@ -98,16 +103,16 @@ for i in range(Nclips):
 # If a clip contains two or more experiments, the entry is [[exp1_start(seconds), exp1_end(seconds)], [exp2_start(seconds)...
 print("Done selecting clips and experiments. My conclusion is")
 print(repr(clip_exp_t))
+print("================================================================")
 
 for i in range(0,Nclips):
-	print(f"----------- Begin joining clip No.: {i} of {Nclips}")
-	print(f"            Clip contains these experiments")
-	
-	print(clips[i][0])
-	print(clips[i][1])
-	cuttools.joinTracks(clips[i][0], clips[i][1],clip_exp_t[i])
+	print(f"=========== Begin joining clip No.: {i+1} of {Nclips}   =========== ")
+	print(f"Track0: {clips[i][0]}")
+	print(f"Track1: {clips[i][1]}")
+	ct.joinTracks(clips[i][0], clips[i][1],clip_exp_t[i])
 
-	print(f"----------- DONE  joining clip No.: {i} of {Nclips}")
+	print(f"=========== DONE  joining clip No.: {i+1} of {Nclips}   =========== ")
 	print("")
 	
-print("I am done with EVERYTHING!")
+print("=========== I am done with EVERYTHING!")
+print("================================================================")

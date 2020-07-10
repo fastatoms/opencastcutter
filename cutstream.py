@@ -9,6 +9,10 @@ __copyright__   = "Copyright 2020, University of Stuttgart, Institute FMQ"
 import os
 from cuttools import cuttools
 
+
+#Create cuttools object
+ct = cuttools()
+
 #Lecture 05-29 (from local PC Sebastian)
 # cuts = "C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/cuts.txt"
 
@@ -19,8 +23,13 @@ from cuttools import cuttools
 cuts = "\\fmq-cifs.tik.uni-stuttgart.de/Loth_group/Teaching/2020 SS ExpPhys 2/SS2019 Aufzeichnung/vl041500000-2019-6-19-5-54/2019-6-19-5-54/cuts.txt"
 
 #Lectures 06-26
-cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-6-26-5-54/2019-6-26-5-54/cuts.txt"
+# cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-6-26-5-54/2019-6-26-5-54/cuts.txt"
 
+#Lectures 06-28
+# cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-6-28-5-54/2019-6-28-5-54/cuts.txt"
+
+#Test cut of additional lecture
+cuts = "C:/temp/vl041500000-2020-7-3-8-42/2020-7-3-8-42/cuts_test.txt"
 
 #Import cut marks
 """
@@ -68,18 +77,18 @@ with open(cuts,"r") as cf:
 for i in range(len(cut_tstr)):
 	print("Cut position found: %s title: %s"%(cut_tstr[i], cut_titles[i]))
 # Convert cuts into numbers
-t0_cut=cuttools.str2Cut(cut_tstr)
+t0_cut=ct.str2Cut(cut_tstr)
 #print("Cut marks selected track0:")
-#cuttools.printCuts(t0_cut)
+#ct.printCuts(t0_cut)
 
 #Now do the cutting
 
-t0_clips = cuttools.cutTrack(track0,t0_cut,cut_titles)
+t0_clips = ct.cutTrack(track0,t0_cut,cut_titles)
 
-t1_cut = cuttools.addCutOffset(t0_cut,t_offset)
+t1_cut = ct.addCutOffset(t0_cut,t_offset)
 #print("Cut marks selected track1:")
-#cuttools.printCuts(t1_cut)
-t1_clips = cuttools.cutTrack(track1,t1_cut,cut_titles)
+#ct.printCuts(t1_cut)
+t1_clips = ct.cutTrack(track1,t1_cut,cut_titles)
 
 
 #Save the list of generated files for further use

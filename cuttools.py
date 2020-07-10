@@ -12,7 +12,17 @@ from datetime import timedelta
 
 
 class cuttools():
-	def cutTrack(track_filename, track_cuts, clip_titles):
+	def __init__(self):
+		#Video appearance settings
+		self.vid_size = [1920, 1088] #size of output video
+		self.ol_size = [1296, 736] #Size of whiteboard overlay
+
+		#Perspective correction settings
+		self.screen_left = [[170, 96], [935, 111], [200, 528], [930, 516]]
+		self.screen_right = [[944, 113],[1688, 123], [937, 517], [1652, 544]]
+		self.perspective_scaling = 3
+
+	def cutTrack(self, track_filename, track_cuts, clip_titles):
 		#This function cuts two tracks into synchronized clips
 		track_name, track_ext = os.path.splitext(track_filename)
 		cliplist =[]
@@ -39,15 +49,15 @@ class cuttools():
 		print("I am done.")
 		return cliplist
 
-	def joinTracks(track0_filename, track1_filename, nooverlay_intervals):
+	def joinTracks(self, track0_filename, track1_filename, nooverlay_intervals):
 		#This function joins two clips by adding an overlay of track1 to track0
 		#The nooverlay_intervals is used to indicate time intervals where an overlay should NOT be displayed
 		track_name, track_ext = os.path.splitext(track0_filename)
 		clip_name = track_name + "_joined" + track_ext
 
 		#Video appearance settings
-		vid_size = [1920, 1088] #size of output video
-		ol_size = [1296, 736] #Size of whiteboard overlay
+		vid_size = self.vid_size #size of output video
+		ol_size = self.ol_size #Size of whiteboard overlay
 
 		#Obtain duration of the two tracks
 		fpcmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffprobe")
@@ -89,13 +99,23 @@ class cuttools():
 			fi = fi + f"[1:v]colorlevels=rimax=0.95:gimax=0.95:bimax=0.95[in1_screen];"
 
 			#Assemble command to do perspective correction in the intervals without overlay
-			fi = fi + f"[in1_screen]scale=w=5760:h=3264[sc];[sc]split=2[sca][scb];"
-			fi = fi + f"[sca]perspective=x0=510:y0=287:x1=2805:y1=332:x2=600:y2=1583:x3=2790:y3=1547[pea];"
+
+			#calculate screen corners in scaled video
+			pss = self.perspective_scaling
+			sl=[]
+			sr=[]
+			for si in self.screen_left:
+				sl.append([si[0]*pss, si[1]*pss])
+			for si in self.screen_right:
+				sr.append([si[0]*pss, si[1]*pss])
+
+			fi = fi + f"[in1_screen]scale=w={vid_size[0]*pss}:h={vid_size[1]*pss}[sc];[sc]split=2[sca][scb];"
+			fi = fi + f"[sca]perspective=x0={sl[0][0]}:y0={sl[0][1]}:x1={sl[1][0]}:y1={sl[1][1]}:x2={sl[2][0]}:y2={sl[2][1]}:x3={sl[3][0]}:y3={sl[3][1]}[pea];"
 			fi = fi + f"[pea]scale=w={round(vid_size[0]/2)}:h={round(vid_size[1]/2)}[psa];[psa]split={Nnoo}"
 			for k in range(0,Nnoo):
 				fi = fi + f"[psa{k}]"
 			fi = fi + f";"
-			fi = fi + f"[scb]perspective=x0=2832:y0=338:x1=5064:y1=369:x2=2811:y2=1550:x3=4956:y3=1632[peb];"
+			fi = fi + f"[scb]perspective=x0={sr[0][0]}:y0={sr[0][1]}:x1={sr[1][0]}:y1={sr[1][1]}:x2={sr[2][0]}:y2={sr[2][1]}:x3={sr[3][0]}:y3={sr[3][1]}[peb];"
 			fi = fi + f"[peb]scale=w={round(vid_size[0]/2)}:h={round(vid_size[1]/2)}[psb];[psb]split={Nnoo}"
 			for l in range(0,Nnoo):
 				fi = fi + f"[psb{l}]"
@@ -134,25 +154,26 @@ class cuttools():
 		fcmd = fcmd + fi +"\""
 		fcmd = fcmd + f" -map 0:a -profile:v main -c:v libx264 -preset slow -crf 22 -c:a copy -y \"{clip_name}\""
 
-		print("========== Join tracks function called ==========")
+		print("----------- Join tracks function called:")
 		print(f"Overlay intervals: {No}")
 		print(repr(overlay_interval))
 		print(f"No overlay intervals: {Nnoo}")
 		print(repr(nooverlay_intervals))
 		print("This is the FFMPEG command to be executed:")
 		print(fcmd)
-		print(f"===== Starting encoding now. {datetime.now()}=====")
+		print(f"----------- Starting encoding now. {datetime.now()}")
 
 		#Execute FFMPEG command
 		try:
 			rtn = subprocess.check_call(fcmd)
-			print(f"===== Done. Successfully saved clip {clip_name} time: {datetime.now()}=====")
+			print(f"----------- Done. Successfully saved clip {clip_name} time: {datetime.now()}=====")
 		except subprocess.CalledProcessError as grepexc:
-			print(f"***** ERROR writing clip {clip_name} *****")
+			print(f"*********** ERROR writing clip: {clip_name} ***********")
+			print(f"****************************************************************")
 			print(grepexc.returncode)
 
 
-	def addCutOffset(track_cuts,cut_offset):
+	def addCutOffset(self, track_cuts,cut_offset):
 		# This function adjusts the cut marks for stream 2 by adding the timing offset 
 		# Create cut array for stream 2
 		t_o=[]
@@ -160,17 +181,53 @@ class cuttools():
 			t_o.append(ts + timedelta(seconds=cut_offset))
 		return t_o
 
-	def printCuts(track_cuts):
+	def printCuts(self, track_cuts):
 		for ts in track_cuts:
 			print(ts.strftime("%H:%M:%S.%f"))
+	
+	def setScreenLeft(self, top_left, top_right, bottom_left, bottom_right):
+		# The expected input is four coordinates of the form [x, y]:
+		# numbers must be given in pixel
+		# The topmost leftmost pixel of the entire video image has the coordinate [0, 0]
+		self.screen_left = [top_left, top_right, bottom_left, bottom_right]
 
-	def str2Cut(string_cuts):
+	def setScreenRight(self, top_left, top_right, bottom_left, bottom_right):
+		# The expected input is four coordinates of the form [x, y]:
+		# numbers must be given in pixel
+		# The topmost leftmost pixel of the entire video image has the coordinate [0, 0]
+		self.screen_right = [top_left, top_right, bottom_left, bottom_right]
+
+
+	def str2Cut(self, string_cuts):
 		t_o=[]
 		for ts in string_cuts:
 			t_o.append(datetime.strptime(ts,"%H:%M:%S"))
 		return t_o
 
-	def loadCuts(cuts_file):
+	def str2Exp(self, string_experiments):
+		e_o=[]
+		Nexp = len(string_experiments)
+		for i in range(Nexp):
+			cm = string_experiments[i]
+			ct = [datetime.strptime(cm[0],"%H:%M:%S"), datetime.strptime(cm[1],"%H:%M:%S")]
+			e_o.append(ct)
+		#now e_o is a list of [experiment start, experiment end] in the time format of absolute time in FULL track
+		return e_o
+	
+	def cut2clip(self, cutlist):
+		#convert cut times into clip intervals
+		Nclips = len(cutlist)-1
+		clip_t = []
+		if Nclips >1:
+			for i in range(Nclips):
+				clip_t.append([cutlist[i],cutlist[i+1]])
+			#now clip_t is a list of [clip_start, clip_end] in the time format of absolute time in full track
+		else:
+			clip_t=-1
+		return clip_t
+		
+
+	def loadCutsfile(self, cuts_file):
 		#Import the timestamps and names from cuts.txt file
 		#Current function only imports 
 		t_offset = 0.0
@@ -208,26 +265,59 @@ class cuttools():
 		cut_t=cuttools.str2Cut(cut_tstr)
 
 		#convert experiment time string into timestamp
-		Nexp = len(exp_tstr)
-		exp_t = []
-		for i in range(Nexp):
-			cm = exp_tstr[i]
-			ct = [datetime.strptime(cm[0],"%H:%M:%S"), datetime.strptime(cm[1],"%H:%M:%S")]
-			exp_t.append(ct)
-		#now exp_t is a list of [experiment start, experiment end] in the time format of absolute time in full track
+		exp_t = cuttools.str2Exp(exp_tstr)
 		
 		ci = cut_instructions()
+		ci.cuts_file = cuts_file
+		ci.track0_file = track0 
+		ci.track1_file = track1
 		ci.cut_str = cut_tstr
 		ci.cut_t = cut_t
 		ci.exp_str = exp_tstr
+		ci.exp_t = exp_t
+		ci.offset_t=t_offset
+		ci.titles = cut_titles
 		return ci
+
+	def loadClips(self, clips_file):
+		clips=[]
+		with open(clips_file,"r") as cf:
+			for cl in cf:
+				clips.append(cl.strip("\n").split("\t"))
+		cf.close()
+		#clips is now an array of arrays in the form of
+		#[ [clip0_track0, clip0_track1], [clip1_track0, clip1_track1],...]
+		return clips
 
 
 class cut_instructions:
 	def __init__(self):
+		self.cuts_file = []
+		self.clips_file = []
+		self.track0_file = []
+		self.track1_file = []
 		self.cut_str = []
 		self.cut_t = []
 		self.exp_str = []
 		self.exp_t = []
 		self.offset_t = 0.0
 		self.titles = []
+
+	def __str__(self):
+		s=f"cuttools.cut_instructions object.\nContent:\n"
+		s=s+f".track0_file: {self.track0_file}\n.track1_file: {self.track1_file}\n"
+		s=s+f".offset_t: {self.offset_t}\n"
+		s=s+f".cut_t (List of cuts):\n"
+		for ci in self.cut_t:
+			cuttime = ci.strftime("%H:%M:%S.%f")
+			s=s+f"    {cuttime}\n"
+		s=s+f".titles (List of clip titles):\n"
+		for ti in self.titles:
+			s=s+f"    {ti}\n"
+		s=s+f".exp_t (List of experiment intervals, no overlay):\n"
+		for ei in self.exp_t:
+			estart = ei[0].strftime("%H:%M:%S.%f")
+			eend = ei[1].strftime("%H:%M:%S.%f")
+			s=s+f"    {estart}   {eend}\n"
+
+		return s
