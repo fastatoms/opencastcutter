@@ -75,7 +75,7 @@ C	01:31:43	Ende
   ```
   C	00:00:14	Wiederholung
   C	00:01:49	Dipolmoment
-  C   00:13:55	Polarisation
+  C 00:13:55	Polarisation
   C	00:20:37	weg
   ```
   The format of a cut mark is
