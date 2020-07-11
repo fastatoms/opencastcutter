@@ -17,10 +17,20 @@ class cuttools():
 		self.vid_size = [1920, 1088] #size of output video
 		self.ol_size = [1296, 736] #Size of whiteboard overlay
 
-		#Perspective correction settings
-		self.screen_left = [[170, 96], [935, 111], [200, 528], [930, 516]]
-		self.screen_right = [[944, 113],[1688, 123], [937, 517], [1652, 544]]
-		self.perspective_scaling = 3
+		#Perspective adjustment settings for screens in stage view
+		self.perpective_adjust = "on" #options are: "on", "off"
+		self.perspective_adjust_settings = {"screen_left_coords": [[170, 96], [935, 111], [200, 528], [930, 516]],
+											"screen_right_coords": [[944, 113],[1688, 123], [937, 517], [1652, 544]],
+											"interpolation_factor": 3}
+
+		#Color adjustment
+		self.color_adjust_stage = "medium"  # options are: "off", "medium", "strong"
+		self.color_adjust_screen = "lighten" # options are: "off", "lighten", "medium", "strong"
+		self.color_adjust_settings = {"off": "null",
+									  "medium": "curves=psfile=stagecorr_medium.acv",
+									  "strong":"curves=psfile=stagecorr5.acv",
+									  "lighten": "colorlevels=rimax=0.95:gimax=0.95:bimax=0.95"}
+		
 
 	def cutTrack(self, track_filename, track_cuts, clip_titles):
 		#This function cuts a track into clips
@@ -76,7 +86,7 @@ class cuttools():
 		fi =""
 
 		#Assemble command for color correction of the stage view
-		fi = fi + f"[1:v]curves=psfile=stagecorr_medium.acv[in1_stage];"
+		fi = fi + f"[1:v]{self.color_adjust_settings.get(self.color_adjust_stage)}[in1_stage];"
 			
 		if nooverlay_intervals == []:
 			print("Joining clips with continuous overlay. No interruption of overlay selected.")
@@ -88,60 +98,65 @@ class cuttools():
 			Nnoo = 1
 			overlay_interval=[]
 		else:
-			#Generate overlay intervals
+			#Generate overlay intervals (with or without perspective adjustment of screen images)
 			overlay_interval = [[0, nooverlay_intervals[0][0]]]
 			Nnoo = len(nooverlay_intervals)
 			for i in range(1,Nnoo):
 				overlay_interval.append([nooverlay_intervals[i-1][1], nooverlay_intervals[i][0]])
 			overlay_interval.append([ nooverlay_intervals[Nnoo-1][1], tend])
 			
-			#Assemble command to perform color correction on the screen display
-			fi = fi + f"[1:v]colorlevels=rimax=0.95:gimax=0.95:bimax=0.95[in1_screen];"
+			if self.perpective_adjust=="on": #(here,the switch betweenn perspective-corrected and non-corrected happens)
 
-			#Assemble command to do perspective correction in the intervals without overlay
+				#Assemble command to perform color correction on the screen display
+				fi = fi + f"[1:v]{self.color_adjust_settings.get(self.color_adjust_screen)}[in1_screen];"
 
-			#calculate screen corners in scaled video
-			pss = self.perspective_scaling
-			sl=[]
-			sr=[]
-			for si in self.screen_left:
-				sl.append([si[0]*pss, si[1]*pss])
-			for si in self.screen_right:
-				sr.append([si[0]*pss, si[1]*pss])
+				#calculate screen corners in scaled video
+				pss = self.perspective_adjust_settings.get("interpolation_factor")
+				sl=[]
+				sr=[]
+				for si in self.perspective_adjust_settings.get("screen_left_coords"):
+					sl.append([si[0]*pss, si[1]*pss])
+				for si in self.perspective_adjust_settings.get("screen_right_coords"):
+					sr.append([si[0]*pss, si[1]*pss])
+				#Perform perspective correction on both screen images
+				fi = fi + f"[in1_screen]scale=w={vid_size[0]*pss}:h={vid_size[1]*pss}[sc];[sc]split=2[sca][scb];"
+				fi = fi + f"[sca]perspective=x0={sl[0][0]}:y0={sl[0][1]}:x1={sl[1][0]}:y1={sl[1][1]}:x2={sl[2][0]}:y2={sl[2][1]}:x3={sl[3][0]}:y3={sl[3][1]}[pea];"
+				fi = fi + f"[pea]scale=w={round(vid_size[0]/2)}:h={round(vid_size[1]/2)}[psa];[psa]split={Nnoo}"
+				for k in range(0,Nnoo):
+					fi = fi + f"[psa{k}]"
+				fi = fi + f";"
+				fi = fi + f"[scb]perspective=x0={sr[0][0]}:y0={sr[0][1]}:x1={sr[1][0]}:y1={sr[1][1]}:x2={sr[2][0]}:y2={sr[2][1]}:x3={sr[3][0]}:y3={sr[3][1]}[peb];"
+				fi = fi + f"[peb]scale=w={round(vid_size[0]/2)}:h={round(vid_size[1]/2)}[psb];[psb]split={Nnoo}"
+				for l in range(0,Nnoo):
+					fi = fi + f"[psb{l}]"
+				fi = fi + f";"
 
-			fi = fi + f"[in1_screen]scale=w={vid_size[0]*pss}:h={vid_size[1]*pss}[sc];[sc]split=2[sca][scb];"
-			fi = fi + f"[sca]perspective=x0={sl[0][0]}:y0={sl[0][1]}:x1={sl[1][0]}:y1={sl[1][1]}:x2={sl[2][0]}:y2={sl[2][1]}:x3={sl[3][0]}:y3={sl[3][1]}[pea];"
-			fi = fi + f"[pea]scale=w={round(vid_size[0]/2)}:h={round(vid_size[1]/2)}[psa];[psa]split={Nnoo}"
-			for k in range(0,Nnoo):
-				fi = fi + f"[psa{k}]"
-			fi = fi + f";"
-			fi = fi + f"[scb]perspective=x0={sr[0][0]}:y0={sr[0][1]}:x1={sr[1][0]}:y1={sr[1][1]}:x2={sr[2][0]}:y2={sr[2][1]}:x3={sr[3][0]}:y3={sr[3][1]}[peb];"
-			fi = fi + f"[peb]scale=w={round(vid_size[0]/2)}:h={round(vid_size[1]/2)}[psb];[psb]split={Nnoo}"
-			for l in range(0,Nnoo):
-				fi = fi + f"[psb{l}]"
-			fi = fi + f";"
-
-			for j in range(0,Nnoo):
-				if j==0:
-					fi = fi + f"[in1_stage]"
-				else:
-					fi = fi + f"[nov{j-1}]"
-				fi = fi + f"[psa{j}]overlay=0:0:enable=\'between(t,{nooverlay_intervals[j][0]},{nooverlay_intervals[j][1]})\'[nout{j}];"
-				fi = fi + f"[nout{j}][psb{j}]overlay={round(vid_size[0]/2)}:0:enable=\'between(t,{nooverlay_intervals[j][0]},{nooverlay_intervals[j][1]})\'[nov{j}];"
-
+				#Assemble command to do perspective correction of the projector screens
+				for j in range(0,Nnoo):
+					if j==0:
+						fi = fi + f"[in1_stage]"
+					else:
+						fi = fi + f"[nov{j-1}]"
+					fi = fi + f"[psa{j}]overlay=0:0:enable=\'between(t,{nooverlay_intervals[j][0]},{nooverlay_intervals[j][1]})\'[nout{j}];"
+					fi = fi + f"[nout{j}][psb{j}]overlay={round(vid_size[0]/2)}:0:enable=\'between(t,{nooverlay_intervals[j][0]},{nooverlay_intervals[j][1]})\'[nov{j}];"
+			else:
+				fi = fi +f"[in1_stage]null[nov{Nnoo-1}];"
 
 			#Assemble command to add interrupted overlay
 			No = len(overlay_interval)
 			
+			#Assemble command to rescale whiteboard overlay
 			fi = fi + f"[0:v]scale={ol_size[0]}:{ol_size[1]} [ovr];"
 			fi = fi + f"[ovr]pad=width={vid_size[0]}:height={ol_size[1]}:x={round((vid_size[0]-ol_size[0])/2)}:y=0:color=black [ovb];"
+
+			#Assemble command to add whiteboard overlay during movie
 			fi = fi + f"[ovb]split={No}"
 			for m in range(0,No):
 				fi = fi + f"[pip{m}]"
 			fi = fi + f";"
 			for i in range(0,No):
 				if i==0:
-					fi = fi +f"[nov{Nnoo-1}]"
+					fi = fi +f"[nov{Nnoo-1}]" #here, the stream with the perspective-corrected screens enters
 				else:
 					fi = fi +f"[out{i-1}]"
 				fi = fi +f"[pip{i}] overlay=0:0:enable=\'between(t,{overlay_interval[i][0]},{overlay_interval[i][1]})\'"
@@ -189,13 +204,13 @@ class cuttools():
 		# The expected input is four coordinates of the form [x, y]:
 		# numbers must be given in pixel
 		# The topmost leftmost pixel of the entire video image has the coordinate [0, 0]
-		self.screen_left = [top_left, top_right, bottom_left, bottom_right]
+		self.perspective_adjust_settings["screen_left_coords"] = [top_left, top_right, bottom_left, bottom_right]
 
 	def setScreenRight(self, top_left, top_right, bottom_left, bottom_right):
 		# The expected input is four coordinates of the form [x, y]:
 		# numbers must be given in pixel
 		# The topmost leftmost pixel of the entire video image has the coordinate [0, 0]
-		self.screen_right = [top_left, top_right, bottom_left, bottom_right]
+		self.perspective_adjust_settings["screen_right_coords"] = [top_left, top_right, bottom_left, bottom_right]
 
 
 	def str2Cut(self, string_cuts):

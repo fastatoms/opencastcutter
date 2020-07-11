@@ -20,17 +20,17 @@ ct = cuttools()
 # clips_file ="G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-6-28-5-54/2019-6-28-5-54/clips.txt"
 
 #Test cut of additional lecture
-# cuts = "C:/temp/vl041500000-2020-7-3-8-42/2020-7-3-8-42/cuts_test.txt"
-# clips_file = "C:/temp/vl041500000-2020-7-3-8-42/2020-7-3-8-42/clips.txt"
-# ct.setScreenLeft([58, 14], [925, 39], [100, 500], [921, 485])
-# ct.setScreenRight([940, 38],[1776, 47], [931, 485], [1731, 517])
+cuts = "C:/temp/vl041500000-2020-7-3-8-42/2020-7-3-8-42/cuts_test.txt"
+clips_file = "C:/temp/vl041500000-2020-7-3-8-42/2020-7-3-8-42/clips.txt"
+ct.setScreenLeft([58, 14], [925, 39], [100, 500], [921, 485])
+ct.setScreenRight([940, 38],[1776, 47], [931, 485], [1731, 517])
 
 
 #2020 Additional lecture part 1
-cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/joined/Zusatzaufzeichnung (fehlerhaft)/2020-07-03-8/cuts_drive.txt"
-clips_file = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/joined/Zusatzaufzeichnung (fehlerhaft)/2020-07-03-8/clips_drive.txt"
-ct.setScreenLeft([58, 14], [925, 39], [100, 500], [921, 485])
-ct.setScreenRight([940, 38],[1776, 47], [931, 485], [1731, 517])
+# cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/joined/Zusatzaufzeichnung (fehlerhaft)/2020-07-03-8/cuts_drive.txt"
+# clips_file = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/joined/Zusatzaufzeichnung (fehlerhaft)/2020-07-03-8/clips_drive.txt"
+# ct.setScreenLeft([58, 14], [925, 39], [100, 500], [921, 485])
+# ct.setScreenRight([940, 38],[1776, 47], [931, 485], [1731, 517])
 # Note:
 # The above functions define the postion of the two projector screens in the video image.
 # Numbers are given in pixels counting from the top left corner of the video image. 
