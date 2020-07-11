@@ -23,7 +23,7 @@ class cuttools():
 		self.perspective_scaling = 3
 
 	def cutTrack(self, track_filename, track_cuts, clip_titles):
-		#This function cuts two tracks into synchronized clips
+		#This function cuts a track into clips
 		track_name, track_ext = os.path.splitext(track_filename)
 		cliplist =[]
 
@@ -76,7 +76,7 @@ class cuttools():
 		fi =""
 
 		#Assemble command for color correction of the stage view
-		fi = fi + f"[1:v]curves=psfile=stagecorr5.acv[in1_stage];"
+		fi = fi + f"[1:v]curves=psfile=stagecorr_medium.acv[in1_stage];"
 			
 		if nooverlay_intervals == []:
 			print("Joining clips with continuous overlay. No interruption of overlay selected.")
@@ -262,10 +262,10 @@ class cuttools():
 					print("ignored unknown command")
 			cf.close()
 		#convert Cut marker string array to timestamp
-		cut_t=cuttools.str2Cut(cut_tstr)
+		cut_t=self.str2Cut(cut_tstr)
 
 		#convert experiment time string into timestamp
-		exp_t = cuttools.str2Exp(exp_tstr)
+		exp_t = self.str2Exp(exp_tstr)
 		
 		ci = cut_instructions()
 		ci.cuts_file = cuts_file

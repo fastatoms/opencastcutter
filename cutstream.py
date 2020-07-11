@@ -20,7 +20,7 @@ ct = cuttools()
 # cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-5-31-5-54/2019-5-31-5-54/cuts.txt"
 
 #Lectures 06-19 (from FMQ PC)
-cuts = "\\fmq-cifs.tik.uni-stuttgart.de/Loth_group/Teaching/2020 SS ExpPhys 2/SS2019 Aufzeichnung/vl041500000-2019-6-19-5-54/2019-6-19-5-54/cuts.txt"
+# cuts = "\\fmq-cifs.tik.uni-stuttgart.de/Loth_group/Teaching/2020 SS ExpPhys 2/SS2019 Aufzeichnung/vl041500000-2019-6-19-5-54/2019-6-19-5-54/cuts.txt"
 
 #Lectures 06-26
 # cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-6-26-5-54/2019-6-26-5-54/cuts.txt"
