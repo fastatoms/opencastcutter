@@ -27,8 +27,8 @@ class cuttools():
 		self.color_adjust_stage = "medium"  # options are: "off", "medium", "strong"
 		self.color_adjust_screen = "lighten" # options are: "off", "lighten", "medium", "strong"
 		self.color_adjust_settings = {"off": "null",
-									  "medium": "curves=psfile=stagecorr_medium.acv",
-									  "strong":"curves=psfile=stagecorr5.acv",
+									  "medium": "curves=psfile=filters/stagecorr_medium.acv",
+									  "strong":"curves=psfile=filters/stagecorr_strong.acv",
 									  "lighten": "colorlevels=rimax=0.95:gimax=0.95:bimax=0.95"}
 		self.debug = False # either True or False. Toggles amoung of text output 
 

@@ -9,6 +9,8 @@ __copyright__   = "Copyright 2020, University of Stuttgart, Institute FMQ"
 from cuttools import cuttools
 ct = cuttools()
 
+# -------------------------------------------------------------------------
+# -- Instructions go below here
 
 #Lectures 06-28
 # cuts = "G:/Geteilte Ablagen/ExpPhys 2 Skript/SS2019 Aufzeichnung/vl041500000-2019-6-28-5-54/2019-6-28-5-54/cuts.txt"
@@ -40,7 +42,8 @@ ct.setScreenRight([940, 38],[1776, 47], [931, 485], [1731, 517])
 # Corner 3 [x3, y3]: bottom right
 
 
-# == Not user input required from this point on
+# -------------------------------------------------------------------------
+# -- Program execution (no user input required below here)
 ct.processJoin(folder,cuts_file,clips_file)
 
 
