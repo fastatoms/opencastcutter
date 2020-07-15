@@ -1,5 +1,5 @@
 # opencastcutter
-Python class and scripts to cut the dual stream videos of open cast lecture recordings.
+Python class and scripts to cut the dual stream videos of opencast lecture recordings.
 
 # Basic working principle
 The goal is to provide an easy method to cut and re-encode lecture recordings into smaller video clips.
