@@ -17,11 +17,12 @@ The python script creates the ffmpeg command for each clip and executes it.
 
 
 # Procedures
-## Cutting of stream into clips ('cutstream-py')
-As the lecture recordings feature two parallel video streams (typically named track-0.mp4 and track-1.mp4), the procedure to cut the entire lecture into smaller streams is done as follows:
+## Cutting of tracks into clips ('cutstream-py')
+As the lecture recordings feature two parallel video tracks (typically named track-0.mp4 and track-1.mp4), the procedure to cut the entire lecture into smaller streams is done as follows:
 1. Select which track contains the stage view (labeled track0 throughout program) and which track contains the whiteboard view (labeled track1 throughout program).
 2. Determine time offset between track0 and track1. Positive time offset means that things happen later in track1 compared to track0.
-3. Make a list of cut marks and save them together with some additional information in a text file cuts.txt
+3. Make a list of cut marks and save them together with some additional information in a text file 'cuts.txt'
+   (See below for details on the file format)
 4. Run script cutstream.py.
    - The script imports cut marks and clip titles from cuts.txt.
    - Then it uses FFMPEG fast copy functionality to save portions of track0 and track1 into clips.
@@ -29,7 +30,26 @@ As the lecture recordings feature two parallel video streams (typically named tr
    - In the cutting process the script takes care that time offset between track0 and track1 is removed.
    - **This should be the first thing to do to a lecture recording.**
 
-### Format of `cuts.txt`
+## Joining of stage and whitebaord view into one video ('jointracks.py')
+After cutting the long opencast lecture into smaller clips, it may be desired to join the two tracks (stage and whiteboad view) into one mp4 video that can be uploaded to ILIAS, Youtube etc..
+By default the whiteboard view will be overlaid on top of the stage view leaving the bottom portion of the stage view visible. (Because this is where the lecturer is seen in the physics lecture halls of U Stuttgart).
+The procedure is as follows:
+0. Do the cutting described above.
+1. Make a list of experiment intervals. Add this information to the cuts.txt file (see below for details). During the experiment intervals the whiteboard overlay will be paused so that the stage view is fully visible. 
+2. Decide whether a perspective correction should be performed on the captures screens visible in the stage view.
+   If yes: use this line 'ct.setPerspectiveAdjust("on")' in the jointracks.py
+   If no: use this line 'ct.setPerspectiveAdjust("off")' in the jointracks.py
+   (See below for details on how to define where exactly the screens are)
+3. Run the script 'jointracks.py'
+   - The script imports the cut marks and experiment intervals
+   - Then it calculates for each movie clip when oberlay should be on and when not
+   - Then it renders the video with overlay, color correction and perspective correction.
+   - The output will be named *track(trackno)-(clipno)-(title)_joined.mp4*
+
+
+
+# Details
+## Format of `cuts.txt`
 This is an example of the format that the cuts.txt file should have.
 ```
 track0	C:/temp/vl041500000-2019-5-29-5-54/2019-5-29-5-54/track-0.mp4
@@ -65,10 +85,12 @@ C	01:31:43	Ende
   `track0` will be used as the stage view showing the lecture hall stage.
   `track1` will be used as the whiteboard view showing what the presenter is writing on the screen.
 ### Offset between input tracks ###
-- Specify offset between track0 and track
+- Specify offset between track0 and track1
   ```
   offset	-3.2
   ```
+  A positive number means that things are happening *later* in track1 compared to track0 and
+  a negative number means things in track1 happen earlier than in track0.
 ### Specify cut marks ###
 - Specify cut marks.
   Lines indicating cut marks **must** begin with capital `C`.
