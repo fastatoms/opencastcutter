@@ -290,7 +290,7 @@ class cuttools():
 		#convert cut times into clip intervals
 		Nclips = len(cutlist)-1
 		clip_t = []
-		if Nclips >1:
+		if Nclips >=1:
 			for i in range(Nclips):
 				clip_t.append([cutlist[i],cutlist[i+1]])
 			#now clip_t is a list of [clip_start, clip_end] in the time format of absolute time in full track
@@ -341,7 +341,7 @@ class cuttools():
 
 		#convert cut marks into clip tuples with start and end
 		clip_t=self.cut2clip(cut_t)
-
+		print(clip_t)
 		#Identify experiment time intervals for each clip and convert to start and stop time in sec
 		clip_exp_t = []
 		Nexp = len(exp_tstr)

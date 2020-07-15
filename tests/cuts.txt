@@ -1,0 +1,8 @@
+track0	tests/track-0.mp4
+track1	tests/track-1.mp4
+offset	3.5
+C	00:00:03	Intro
+C	00:00:07	Integralrechnung
+# This is a comment that will be ignored by the file parser
+E	00:00:09	00:00:15
+C	00:00:21	Ende
