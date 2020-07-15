@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""cuttools.py: Class containing cutting tools."""
+"""cuttools.py: Class containing cutting tools for opencastcutter."""
 
 __author__      = "Sebastian Loth"
 __copyright__   = "Copyright 2020, University of Stuttgart, Institute FMQ"
@@ -30,14 +30,15 @@ class cuttools():
 									  "medium": "curves=psfile=stagecorr_medium.acv",
 									  "strong":"curves=psfile=stagecorr5.acv",
 									  "lighten": "colorlevels=rimax=0.95:gimax=0.95:bimax=0.95"}
-		
+		self.debug = False # either True or False. Toggles amoung of text output 
 
 	def cutTrack(self, track_filename, track_cuts, clip_titles):
 		#This function cuts a track into clips
 		track_name, track_ext = os.path.splitext(track_filename)
 		cliplist =[]
 
-		print("Now working on track: %s"%(track_filename))
+		print("================================================================")
+		print(f"=======   Now cutting track: {track_filename}")
 		N = len(track_cuts)
 		for i in range(N-1):
 			cut_start = track_cuts[i].strftime("%H:%M:%S.%f")
@@ -51,12 +52,13 @@ class cuttools():
 			try:
 				rtn = subprocess.check_call(ffmpeg_cmd)
 				cliplist.append(clip_name)
-				print("Successfully saved clip No.: %2d of %2d, cut mark %s"%(i+1, N-1, cut_start))
+				print("       Successfully saved clip No.: %2d of %2d, cut mark %s"%(i+1, N-1, cut_start))
 			except subprocess.CalledProcessError as grepexc:
-				print("ERROR writing clip No. : %2d of %2d"%(i+1, N-1))
+				print("       ERROR writing clip No. : %2d of %2d"%(i+1, N-1))
 				print(grepexc.returncode)
 
-		print("I am done.")
+		print("===========    DONE creating clips.    =========================")
+		print("================================================================")
 		return cliplist
 
 	def joinTracks(self, track0_filename, track1_filename, nooverlay_intervals):
@@ -174,8 +176,9 @@ class cuttools():
 		print(repr(overlay_interval))
 		print(f"No overlay intervals: {Nnoo}")
 		print(repr(nooverlay_intervals))
-		print("This is the FFMPEG command to be executed:")
-		print(fcmd)
+		if self.debug:
+			print("This is the FFMPEG command to be executed:")
+			print(fcmd)
 		print(f"----------- Starting encoding now. {datetime.now()}")
 
 		#Execute FFMPEG command
@@ -183,9 +186,57 @@ class cuttools():
 			rtn = subprocess.check_call(fcmd)
 			print(f"----------- Done. Successfully saved clip {clip_name} time: {datetime.now()}=====")
 		except subprocess.CalledProcessError as grepexc:
-			print(f"*********** ERROR writing clip: {clip_name} ***********")
+			print(f"******************    ERROR writing clip:    *******************")
+			print(f"*** {clip_name}")
 			print(f"****************************************************************")
 			print(grepexc.returncode)
+
+	def processCut(self, folder, cuts_file="cuts.txt"):
+		
+		# Load cutting instructions from cuts.txt
+		ci = self.loadCutsfile(folder + "/" + cuts_file)
+
+		#Get cut timestamps for both tracks
+		cut_t0 = ci.cut_t
+		cut_t1 = self.addCutOffset(ci.cut_t,ci.offset_t)
+
+		#Now do the cutting
+		t0_clips = self.cutTrack(ci.track0_file,cut_t0,ci.titles)
+		t1_clips = self.cutTrack(ci.track1_file,cut_t1,ci.titles)
+
+		#Save the list of clip filenames  for further use
+		clips_file = folder+"/" +"clips.txt"
+		with open(clips_file,'w') as cliplist:
+			for i in range(len(t0_clips)):
+				line = f"{t0_clips[i]}\t{t1_clips[i]}\n"
+				cliplist.write(line)
+			cliplist.close()
+		return clips_file
+
+
+	def processJoin(self, folder, cuts_file="cuts.txt", clips_file="clips.txt"):
+		
+		# Load cutting instructions from cuts.txt
+		ci = self.loadCutsfile(folder + "/" + cuts_file)
+
+		# Load clips list from clips.txt
+		cl = self.loadClips(folder + "/" + clips_file)
+
+		print("================================================================")
+
+		Nclips = len(cl)
+		for i in range(0,Nclips):
+			print(f"=========== Begin joining clip No.: {i+1} of {Nclips}   =================== ")
+			print(f"Track0: {cl[i][0]}")
+			print(f"Track1: {cl[i][1]}")
+			self.joinTracks(cl[i][0], cl[i][1],ci.clip_exp_t[i])
+
+			print(f"=========== Done joining clip No.: {i+1} of {Nclips}   ==================== ")
+			print("")
+
+		print("===========  I am done with EVERYTHING!  =======================")
+		print("================================================================")
+
 
 
 	def addCutOffset(self, track_cuts,cut_offset):
@@ -212,6 +263,11 @@ class cuttools():
 		# The topmost leftmost pixel of the entire video image has the coordinate [0, 0]
 		self.perspective_adjust_settings["screen_right_coords"] = [top_left, top_right, bottom_left, bottom_right]
 
+	def setPerspectiveAdjust(self, adjust_toggle):
+		# The expected input is a string
+		# "on"  : Perspective correction of the lecture hall screens on
+		# "off" : Perspective correction off
+		self.perpective_adjust = adjust_toggle
 
 	def str2Cut(self, string_cuts):
 		t_o=[]
@@ -228,6 +284,7 @@ class cuttools():
 			e_o.append(ct)
 		#now e_o is a list of [experiment start, experiment end] in the time format of absolute time in FULL track
 		return e_o
+
 	
 	def cut2clip(self, cutlist):
 		#convert cut times into clip intervals
@@ -249,7 +306,7 @@ class cuttools():
 		cut_tstr = []
 		exp_tstr = []
 		cut_titles = []
-
+		print(f"Loading cuts information from file: {cuts_file}")
 		with open(cuts_file,"r") as cf:
 			for cl in cf:
 				if cl.find("offset") > -1:
@@ -264,7 +321,7 @@ class cuttools():
 					t1 = cl.split("\t")
 					track1 = t1[1].strip("\n")
 					print("Input track 1: %s"%(track1))
-				if cl.find("E\t") > -1:
+				elif cl.find("E\t") > -1:
 					em = cl.strip("\n").split("\t")
 					exp_tstr.append([em[1], em[2]])
 					print(f"Found Experiment marker. Start: {em[1]} End: {em[2]}")
@@ -281,15 +338,41 @@ class cuttools():
 
 		#convert experiment time string into timestamp
 		exp_t = self.str2Exp(exp_tstr)
-		
+
+		#convert cut marks into clip tuples with start and end
+		clip_t=self.cut2clip(cut_t)
+
+		#Identify experiment time intervals for each clip and convert to start and stop time in sec
+		clip_exp_t = []
+		Nexp = len(exp_tstr)
+		Nclips = len(cut_t)-1
+		for i in range(Nclips):
+			cclip = clip_t[i]
+			clip_exp_t.append([])
+			for j in range(Nexp):
+				#compare start and end to current experiment
+				cexp = exp_t[j]
+				if cclip[0] <= cexp[0] and cclip[1] >= cexp[1]:
+					#now convert timestamp to total seconds from start of clip
+					exp_start = round((cexp[0]-cclip[0]).total_seconds())
+					exp_end = round((cexp[1]-cclip[0]).total_seconds())
+					clip_exp_t[i].append([exp_start, exp_end])
+		#Now clip_exp_t is a list of lists that shows the experiment start and end as seconds from start of each clip.
+		# If a clip contains no experiment, the entry is []
+		# If a clip contains one experiment, the entry is [[exp_start(sec), seconds_end(seconds)]]
+		# If a clip contains two or more experiments, the entry is [[exp1_start(seconds), exp1_end(seconds)], [exp2_start(seconds)...
+
 		ci = cut_instructions()
 		ci.cuts_file = cuts_file
 		ci.track0_file = track0 
 		ci.track1_file = track1
 		ci.cut_str = cut_tstr
+		ci.Nclips = Nclips
 		ci.cut_t = cut_t
-		ci.exp_str = exp_tstr
+		ci.clip_t = clip_t
+		ci.exp_tstr = exp_tstr
 		ci.exp_t = exp_t
+		ci.clip_exp_t = clip_exp_t
 		ci.offset_t=t_offset
 		ci.titles = cut_titles
 		return ci
@@ -312,9 +395,11 @@ class cut_instructions:
 		self.track0_file = []
 		self.track1_file = []
 		self.cut_str = []
+		self.Nclips = []
 		self.cut_t = []
-		self.exp_str = []
+		self.exp_tstr = []
 		self.exp_t = []
+		self.clip_exp_t = []  #needed in processJoin
 		self.offset_t = 0.0
 		self.titles = []
 
