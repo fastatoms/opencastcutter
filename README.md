@@ -17,7 +17,7 @@ The python script creates the ffmpeg command for each clip and executes it.
 
 
 # Procedures
-## Cutting of stream into clips (cutstream-py)
+## Cutting of stream into clips ('cutstream-py')
 As the lecture recordings feature two parallel video streams (typically named track-0.mp4 and track-1.mp4), the procedure to cut the entire lecture into smaller streams is done as follows:
 1. Select which track contains the stage view (labeled track0 throughout program) and which track contains the whiteboard view (labeled track1 throughout program).
 2. Determine time offset between track0 and track1. Positive time offset means that things happen later in track1 compared to track0.
