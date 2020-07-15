@@ -17,7 +17,7 @@ The python script creates the ffmpeg command for each clip and executes it.
 
 
 # Procedures
-## a) Cutting of streams into clips ('cutstream-py')
+## a) Cutting of streams into clips (`cutstream-py`)
 As the lecture recordings feature two parallel video tracks (typically named track-0.mp4 and track-1.mp4), the procedure to cut the entire lecture into smaller streams is done as follows:
 1. Select which track contains the stage view (labeled track0 throughout program) and which track contains the whiteboard view (labeled track1 throughout program).
 2. Determine time offset between track0 and track1. Positive time offset means that things happen later in track1 compared to track0.
@@ -30,7 +30,7 @@ As the lecture recordings feature two parallel video tracks (typically named tra
    - In the cutting process the script takes care that time offset between track0 and track1 is removed.
    - **This should be the first thing to do to a lecture recording.**
 
-## b) Joining tracks into one video ('jointracks.py')
+## b) Joining tracks into one video (`jointracks.py`)
 After cutting the long opencast lecture into smaller clips, it may be desired to join the two tracks (stage and whiteboad view) into one mp4 video that can be uploaded to ILIAS, Youtube etc..
 By default the whiteboard view will be overlaid on top of the stage view leaving the bottom portion of the stage view visible. (Because this is where the lecturer is seen in the physics lecture halls of U Stuttgart).
 The procedure is as follows:
