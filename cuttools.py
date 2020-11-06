@@ -46,7 +46,7 @@ class cuttools():
 			clip_title = "_" + clip_titles[i].replace(" ","_")
 			clip_name = track_name + "-%02d"%(i) + clip_title + track_ext
 			#Begin ffmpeg command (with different path depending on operating system)
-			if system == "Windows":
+			if system() == "Windows":
 				ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
 			else:
 				ffmpeg_cmd = "ffmpeg"
@@ -84,7 +84,7 @@ class cuttools():
 		tend = min(t0,t1)
 
 		#Begin ffmpeg command (with different path depending on operating system)
-		if system == "Windows":
+		if system() == "Windows":
 			ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
 		else:
 			ffmpeg_cmd = "ffmpeg"
@@ -398,7 +398,7 @@ class cuttools():
 			output_filename = os.path.join(in_folder,in_name + ".mp4")
 
 			#Begin ffmpeg command (with different path depending on operating system)
-			if system == "Windows":
+			if system() == "Windows":
 				ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
 			else:
 				ffmpeg_cmd = "ffmpeg"
