@@ -72,7 +72,7 @@ t0_cut=ct.str2Cut(cut_tstr)
 t0_clips = ct.cutTrack(track0,t0_cut,cut_titles)
 
 
-"""
+
 #Save the list of generated files for further use
 folder, cutsfile = os.path.split(cuts)
 clips = folder+"/" +"clips.txt"
@@ -82,4 +82,4 @@ with open(clips,'w') as cliplist:
         line = f"{t0_clips[i]}\n"
         cliplist.write(line)
 	cliplist.close()
-"""
+

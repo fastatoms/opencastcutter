@@ -9,7 +9,7 @@ __copyright__   = "Copyright 2020, University of Stuttgart, Institute FMQ"
 import os, time, subprocess
 from datetime import datetime
 from datetime import timedelta
-
+from platform import system
 
 class cuttools():
 	def __init__(self):
@@ -45,7 +45,11 @@ class cuttools():
 			cut_end = track_cuts[i+1].strftime("%H:%M:%S.%f")
 			clip_title = "_" + clip_titles[i].replace(" ","_")
 			clip_name = track_name + "-%02d"%(i) + clip_title + track_ext
-			ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
+			#Begin ffmpeg command (with different path depending on operating system)
+			if system == "Windows":
+				ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
+			else:
+				ffmpeg_cmd = "ffmpeg"
 			ffmpeg_cmd = ffmpeg_cmd + f" -hide_banner -loglevel warning -i \"{track_filename}\""
 			ffmpeg_cmd = ffmpeg_cmd +f" -c copy -ss {cut_start} -to {cut_end} -y \"{clip_name}\""
 			#print(ffmpeg_cmd) #This is the command that will be executed in the shell
@@ -79,8 +83,11 @@ class cuttools():
 		t1 = round(float(subprocess.check_output(fpcmd + f"\"{track1_filename}\"")))
 		tend = min(t0,t1)
 
-		
-		fcmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
+		#Begin ffmpeg command (with different path depending on operating system)
+		if system == "Windows":
+			ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
+		else:
+			ffmpeg_cmd = "ffmpeg"
 		fcmd = fcmd + f" -hide_banner -loglevel warning"
 		fcmd = fcmd + f" -i \"{track1_filename}\" -i \"{track0_filename}\""
 		fcmd = fcmd + f" -filter_complex \""
@@ -376,6 +383,43 @@ class cuttools():
 		ci.offset_t=t_offset
 		ci.titles = cut_titles
 		return ci
+	
+	def mkv2mp4(self, input_filename):
+		#Quickly copy a mkv file into a mp4 container WITHOUT re-encoding
+		in_folder, in_file = os.path.split(input_filename)		
+		in_name, in_extension = os.path.splitext(in_file)
+		print(in_folder)
+		print(in_file)
+		print(in_name)
+		print(in_extension)
+		if  in_extension == ".mkv":
+			print("================================================================")
+			print(f"=======   Now changing container for clip: {input_filename}")
+			output_filename = os.path.join(in_folder,in_name + ".mp4")
+
+			#Begin ffmpeg command (with different path depending on operating system)
+			if system == "Windows":
+				ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
+			else:
+				ffmpeg_cmd = "ffmpeg"
+			ffmpeg_cmd = ffmpeg_cmd + f" -hide_banner -loglevel warning -i \"{input_filename}\""
+			ffmpeg_cmd = ffmpeg_cmd +f" -c copy -y \"{output_filename}\""
+			print(ffmpeg_cmd) #This is the command that will be executed in the shell
+			try:
+				rtn = subprocess.check_call(ffmpeg_cmd)
+				rtn_msg = output_filename
+				print("       Successfully written file.")
+			except subprocess.CalledProcessError as grepexc:
+				print("       ERROR writing file.")
+				print(grepexc.returncode)
+				rtn_msg = -1
+
+			print("===========    DONE changing container.    =========================")
+			print("================================================================")
+		else:
+			print("DUDE: Input file is not .mkv. I will ignore it.")
+			rtn_msg = -1
+		return rtn_msg	
 
 	def loadClips(self, clips_file):
 		clips=[]
@@ -392,16 +436,16 @@ class cut_instructions:
 	def __init__(self):
 		self.cuts_file = []
 		self.clips_file = []
-		self.track0_file = []
-		self.track1_file = []
+		self.track0_file = [] #needed in processCut
+		self.track1_file = [] #needed in processCut
 		self.cut_str = []
 		self.Nclips = []
-		self.cut_t = []
+		self.cut_t = [] #needed in processCut
 		self.exp_tstr = []
 		self.exp_t = []
 		self.clip_exp_t = []  #needed in processJoin
-		self.offset_t = 0.0
-		self.titles = []
+		self.offset_t = 0.0 #needed in processCut
+		self.titles = [] #needed in processCut
 
 	def __str__(self):
 		s=f"cuttools.cut_instructions object.\nContent:\n"
