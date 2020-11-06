@@ -22,7 +22,7 @@ ct = cuttools()
 
 mp4_list = []
 for cf in all_files:
-    mp4_list.append(ct.encodemp4(os.path.join(target_folder, cf)))
+    mp4_list.append(ct.encodeMp4(os.path.join(target_folder, cf)))
 
 print("*** DONE: Here is a list of generated files")
 print(mp4_list)

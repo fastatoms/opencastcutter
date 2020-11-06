@@ -429,34 +429,28 @@ class cuttools():
 		print(in_file)
 		print(in_name)
 		print(in_extension)
-		if  in_extension == ".mkv":
-			print("================================================================")
-			print(f"=======   Now re-encoding clip: {input_filename}")
-			output_filename = os.path.join(in_folder,in_name + "_small.mp4")
-
-			#Begin ffmpeg command (with different path depending on operating system)
-			if system() == "Windows":
-				ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
-			else:
-				ffmpeg_cmd = "ffmpeg"
-			ffmpeg_cmd = ffmpeg_cmd + f" -hide_banner -loglevel warning -i \"{input_filename}\""
-			ffmpeg_cmd = ffmpeg_cmd +f" -profile:v main -c:v libx264 -preset slow -crf 30 -c:a copy -y \"{output_filename}\""
-			#note 06 Nov 2020 crf 23 is very good quality and approx 1/2 size of original recording
-			#print(ffmpeg_cmd) #This is the command that will be executed in the shell
-			try:
-				rtn = subprocess.check_call(ffmpeg_cmd)
-				rtn_msg = output_filename
-				print("       Successfully written file.")
-			except subprocess.CalledProcessError as grepexc:
-				print("       ERROR writing file.")
-				print(grepexc.returncode)
-				rtn_msg = -1
-
-			print("===========    DONE re-encoding video.    =========================")
-			print("================================================================")
+		print("================================================================")
+		print(f"=======   Now re-encoding clip: {input_filename}")
+		output_filename = os.path.join(in_folder,in_name + "_small.mp4")
+		#Begin ffmpeg command (with different path depending on operating system)
+		if system() == "Windows":
+			ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
 		else:
-			print("DUDE: Input file is not .mkv. I will ignore it.")
+			ffmpeg_cmd = "ffmpeg"
+		ffmpeg_cmd = ffmpeg_cmd + f" -hide_banner -loglevel warning -i \"{input_filename}\""
+		ffmpeg_cmd = ffmpeg_cmd +f" -profile:v main -c:v libx264 -preset slow -crf 30 -c:a copy -y \"{output_filename}\""
+		#note 06 Nov 2020 crf 23 is very good quality and approx 1/2 size of original recording
+		#print(ffmpeg_cmd) #This is the command that will be executed in the shell
+		try:
+			rtn = subprocess.check_call(ffmpeg_cmd)
+			rtn_msg = output_filename
+			print("       Successfully written file.")
+		except subprocess.CalledProcessError as grepexc:
+			print("       ERROR writing file.")
+			print(grepexc.returncode)
 			rtn_msg = -1
+		print("===========    DONE re-encoding video.    =========================")
+		print("================================================================")
 		return rtn_msg	
 
 
