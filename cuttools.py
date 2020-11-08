@@ -384,6 +384,40 @@ class cuttools():
 		ci.titles = cut_titles
 		return ci
 	
+	def mono2stereo(self,input_filename,audio_channel=0):
+		#convert from single-channel (mono) sound to quasi-stereo
+		#Quickly copy a mkv file into a mp4 container WITHOUT re-encoding
+		in_folder, in_file = os.path.split(input_filename)
+		in_name, in_extension = os.path.splitext(in_file)
+		print("================================================================")
+		print(f"=======   Now converting mono to stereo for clip: {input_filename}")
+		output_filename = os.path.join(in_folder,in_name + "_2ch.mp4")
+
+		#Begin ffmpeg command (with different path depending on operating system)
+		if system() == "Windows":
+			ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
+		else:
+			ffmpeg_cmd = "ffmpeg"
+		ffmpeg_cmd = ffmpeg_cmd + f" -hide_banner -loglevel warning -i \"{input_filename}\""
+		ffmpeg_cmd = ffmpeg_cmd + f" -filter_complex \"[0:a]channelmap={audio_channel}|{audio_channel}:stereo[a]\""""
+		ffmpeg_cmd = ffmpeg_cmd + f" -map \"[a]\" -map 0:v -c:v copy" 
+		ffmpeg_cmd = ffmpeg_cmd + f" -y \"{output_filename}\""
+		print("This is the ffmpeg commadn to be executed:")
+		print(ffmpeg_cmd) #This is the command that will be executed in the shell
+		try:
+			rtn = subprocess.check_call(ffmpeg_cmd)
+			rtn_msg = output_filename
+			print("       Successfully written file.")
+		except subprocess.CalledProcessError as grepexc:
+			print("       ERROR writing file.")
+			print(grepexc.returncode)
+			rtn_msg = -1
+
+		print("===========    DONE converting to stereo.    =========================")
+		print("================================================================")
+		return rtn_msg	
+
+	
 	def mkv2mp4(self, input_filename):
 		#Quickly copy a mkv file into a mp4 container WITHOUT re-encoding
 		in_folder, in_file = os.path.split(input_filename)		
