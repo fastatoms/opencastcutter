@@ -8,7 +8,7 @@ __copyright__   = "Copyright 2020, University of Stuttgart, Institute FMQ"
 from cuttools import cuttools
 import os
 
-target_folder = "c:/temp/testvid"
+target_folder = "G:/Shared drives/ExpPhys Aufzeichnung/ExpPhys 1/Aufzeichnungen live-Vorlesung WS2020/2020_11_05 for ILIAS"
 #infile = "2020-11-05 11-25-37-00_Technisches.mkv"
 #infile = "2020-11-05 11-25-37-06_Vorlesung_Vorstellung.mkv"
 
