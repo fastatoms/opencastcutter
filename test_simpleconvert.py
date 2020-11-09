@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""test_simpleconvert.py: Encode all input files in a folder into mp4"""
+"""test_simpleconvert.py: Encode all input files in a folder into small size mp4"""
 
 __author__      = "Sebastian Loth"
 __copyright__   = "Copyright 2020, University of Stuttgart, Institute FMQ"
@@ -8,9 +8,7 @@ __copyright__   = "Copyright 2020, University of Stuttgart, Institute FMQ"
 from cuttools import cuttools
 import os
 
-target_folder = "G:/Shared drives/ExpPhys Aufzeichnung/ExpPhys 1/Aufzeichnungen live-Vorlesung WS2020/2020_11_05 for ILIAS"
-#infile = "2020-11-05 11-25-37-00_Technisches.mkv"
-#infile = "2020-11-05 11-25-37-06_Vorlesung_Vorstellung.mkv"
+target_folder = "G:/Shared drives/ExpPhys Aufzeichnung/ExpPhys 1/Aufzeichnungen live-Vorlesung WS2020/2020_11_06 for ILIAS"
 
 #Obtain list of all files in folder
 all_files = [f for f in os.listdir(target_folder) if os.path.isfile(os.path.join(target_folder, f))]
