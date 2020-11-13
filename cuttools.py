@@ -50,7 +50,7 @@ class cuttools():
 				ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
 			else:
 				ffmpeg_cmd = "ffmpeg"
-			ffmpeg_cmd = ffmpeg_cmd + f" -hide_banner -loglevel warning -i \"{track_filename}\""
+			ffmpeg_cmd = ffmpeg_cmd + f" -hide_banner -loglevel verbose -i \"{track_filename}\""
 			ffmpeg_cmd = ffmpeg_cmd +f" -c copy -ss {cut_start} -to {cut_end} -y \"{clip_name}\""
 			#print(ffmpeg_cmd) #This is the command that will be executed in the shell
 			try:
@@ -203,19 +203,24 @@ class cuttools():
 		# Load cutting instructions from cuts.txt
 		ci = self.loadCutsfile(folder + "/" + cuts_file)
 
-		#Get cut timestamps for both tracks
+		#Get cut timestamps and do cutting
 		cut_t0 = ci.cut_t
-		cut_t1 = self.addCutOffset(ci.cut_t,ci.offset_t)
-
-		#Now do the cutting
 		t0_clips = self.cutTrack(ci.track0_file,cut_t0,ci.titles)
-		t1_clips = self.cutTrack(ci.track1_file,cut_t1,ci.titles)
+		
+		
+		#Now do the cutting
+		if ci.track1_file:
+			cut_t1 = self.addCutOffset(ci.cut_t,ci.offset_t)
+			t1_clips = self.cutTrack(ci.track1_file,cut_t1,ci.titles)
 
 		#Save the list of clip filenames  for further use
 		clips_file = folder+"/" +"clips.txt"
 		with open(clips_file,'w') as cliplist:
 			for i in range(len(t0_clips)):
-				line = f"{t0_clips[i]}\t{t1_clips[i]}\n"
+				if ci.track1_file:
+					line = f"{t0_clips[i]}\t{t1_clips[i]}\n"
+				else:
+					line = f"{t0_clips[i]}\n"   
 				cliplist.write(line)
 			cliplist.close()
 		return clips_file
@@ -313,6 +318,8 @@ class cuttools():
 		cut_tstr = []
 		exp_tstr = []
 		cut_titles = []
+		track0 = []
+		track1 = []
 		print(f"Loading cuts information from file: {cuts_file}")
 		with open(cuts_file,"r") as cf:
 			for cl in cf:
