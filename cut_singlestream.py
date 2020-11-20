@@ -19,8 +19,8 @@ ct = cuttools()
 #    or as an absolute path e.g. c:/videos/lecture01
 #  - The filenames of the tracks in the cuts.txt must follow the same syntax.
 #    Either relative path (from location of python file) or absolute path e.g. c:/videos/lecture01/track-0.mp4
-folder = "G:/Shared drives/Vorlesungen Aufzeichnung/ExpPhys 1/Aufzeichnungen live-Vorlesung WS2020/2020_11_13"
-cuts_file = "cuts_20_11_13.txt"
+folder = "G:/Geteilte Ablagen/Vorlesungen Aufzeichnung/ExpPhys 1/Aufzeichnungen live-Vorlesung WS2020/2020_11_19"
+cuts_file = "cuts_20_11_19.txt"
 
 
 # -------------------------------------------------------------------------
