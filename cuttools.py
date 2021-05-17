@@ -478,7 +478,7 @@ class cuttools():
 			ffmpeg_cmd = os.path.join(os.getcwd(),"libs/ffmpeg/bin/ffmpeg")
 		else:
 			ffmpeg_cmd = "ffmpeg"
-		ffmpeg_cmd = ffmpeg_cmd + f" -hide_banner -loglevel warning -i \"{input_filename}\""
+		ffmpeg_cmd = ffmpeg_cmd + f" -hide_banner -loglevel verbose -i \"{input_filename}\""
 		ffmpeg_cmd = ffmpeg_cmd +f" -profile:v main -c:v libx264 -preset slow -crf 30 -c:a copy -y \"{output_filename}\""
 		#note 06 Nov 2020 crf 23 is very good quality and approx 1/2 size of original recording
 		#print(ffmpeg_cmd) #This is the command that will be executed in the shell
