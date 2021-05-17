@@ -8,7 +8,7 @@ __copyright__   = "Copyright 2020, University of Stuttgart, Institute FMQ"
 from cuttools import cuttools
 import os
 
-target_folder = "G:/Shared drives/Vorlesungen Aufzeichnung/ExpPhys 1/Aufzeichnungen live-Vorlesung WS2020/2021_02_11/HD"
+target_folder = "G:/Geteilte Ablagen/Vorlesungen Aufzeichnung/ExpPhys 1/Aufzeichnungen live-Vorlesung WS2020/2020_11_19/HD"
 
 #Obtain list of all files in folder
 all_files = [f for f in os.listdir(target_folder) if os.path.isfile(os.path.join(target_folder, f))]
@@ -24,7 +24,3 @@ for cf in all_files:
 
 print("*** DONE: Here is a list of generated files")
 print(mp4_list)
-
-"""
-res = ct.encodeMp4(os.path.join(target_folder, infile))
-"""

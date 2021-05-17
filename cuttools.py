@@ -52,7 +52,7 @@ class cuttools():
 				ffmpeg_cmd = "ffmpeg"
 			ffmpeg_cmd = ffmpeg_cmd + f" -hide_banner -loglevel verbose -i \"{track_filename}\""
 			ffmpeg_cmd = ffmpeg_cmd +f" -c copy -ss {cut_start} -to {cut_end} -y \"{clip_name}\""
-			#print(ffmpeg_cmd) #This is the command that will be executed in the shell
+			print(ffmpeg_cmd) #This is the command that will be executed in the shell
 			try:
 				rtn = subprocess.check_call(ffmpeg_cmd)
 				cliplist.append(clip_name)
