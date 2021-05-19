@@ -59,10 +59,10 @@ C	00:00:14	Wiederholung
 E	00:00:14	00:01:40
 C	00:01:49	Dipolmoment
 C	00:13:55	Polarisation
-C	00:20:37	weg
+C	00:20:37	_weg
 C	00:20:55	Dielektrika in Kondensatoren
 E	00:20:58	00:23:26
-C	00:37:19	weg
+C	00:37:19	_weg
 C	00:37:52	Ohmesche Leiter (und reale Kondensatoren)
 E	00:38:33	00:45:22
 C	00:49:01	Leitfaehigkeit
@@ -108,7 +108,8 @@ C	01:31:43	Ende
   above example, the first 13 seconds of the raw streams will be removed.
   To remove part of the video stram from the end, simply let the last cut mark end before the end of the raw video streams.
   This also means that beginning and end must always be specified.
-  To remove pieces in the middle of the video stream, define a cut mark for a video clip to be thrown away., e.g. as labeled above by "weg".
+  To remove pieces in the middle of the video stream, define a cut mark for a video clip to be thrown away.
+  If this cut is titles "_weg", the program will (mostly) recognize that this segment is not needed.
 ### Specify experiment markers ###
 - Specify experiment time markes.
   Lines specifying experiments **must** begin with capital `E`
